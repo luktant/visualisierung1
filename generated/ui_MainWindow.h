@@ -21,6 +21,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QWidget>
+#include "OGLWidget.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -33,6 +34,7 @@ public:
     QLabel *labelTop;
     QProgressBar *progressBar;
     QFrame *line;
+    OGLWidget *openGLWidget;
     QMenuBar *menubar;
     QMenu *menuFile;
 
@@ -40,6 +42,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
+        MainWindow->setWindowModality(Qt::ApplicationModal);
         MainWindow->resize(1000, 700);
         actionOpen = new QAction(MainWindow);
         actionOpen->setObjectName(QStringLiteral("actionOpen"));
@@ -61,6 +64,9 @@ public:
         line->setGeometry(QRect(0, 50, 1011, 20));
         line->setFrameShape(QFrame::HLine);
         line->setFrameShadow(QFrame::Sunken);
+        openGLWidget = new OGLWidget(centralwidget);
+        openGLWidget->setObjectName(QStringLiteral("openGLWidget"));
+        openGLWidget->setGeometry(QRect(-1, 59, 1001, 621));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QStringLiteral("menubar"));

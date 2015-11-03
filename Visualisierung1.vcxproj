@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="generated\moc_MainWindow.cpp" />
+    <ClCompile Include="src\OGLWidget.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
     <ClCompile Include="src\MultiSet.cpp" />
@@ -176,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="generated\ui_MainWindow.h" />
+    <ClInclude Include="src\OGLWidget.h" />
     <ClInclude Include="src\MultiSet.h" />
     <ClInclude Include="src\Vector.h" />
     <ClInclude Include="src\VectorField.h" />
