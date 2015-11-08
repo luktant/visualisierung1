@@ -87,6 +87,11 @@ void MainWindow::openFileAction()
 			m_Ui->labelTop->setText("ERROR loading file " + filename + "!");
 			m_Ui->progressBar->setValue(0);
 		}
+
+		//if (success)
+		//{
+			m_Ui->openGLWidget->fileLoaded=true;
+		//}
 	}
 }
 

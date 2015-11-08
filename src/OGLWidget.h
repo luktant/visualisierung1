@@ -1,12 +1,9 @@
 #pragma once
-
 #ifndef OGLWIDGET_H
 #define OGLWIDGET_H
 
 #include <QtOpenGL/QGLWidget>
 #include <QWidget>
-#include <gl/GLU.h>
-#include <gl/GL.h>
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
@@ -19,16 +16,27 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QWidget>
+#include <QtOpenGL>
+#include <QGLShaderProgram>
 
 class OGLWidget : public QGLWidget
 {
+
 public:
 	OGLWidget(QWidget *parent = 0);
 	~OGLWidget();
+	
+	QSize sizeHint() const;
+	bool fileLoaded;
 
 protected:
 	void initializeGL();
 	void resizeGL(int w, int h);
 	void paintGL();
+
+private:
+	QMatrix4x4 pMatrix;
+	QGLShaderProgram shaderProgram;
+	QVector<QVector3D> vertices;
 };
 #endif

@@ -106,8 +106,8 @@
  <customwidgets>
   <customwidget>
    <class>OGLWidget</class>
-   <extends>QOpenGLWidget</extends>
-   <header>QOpenGLWidget.h</header>
+   <extends>QGLWidget</extends>
+   <header>OGLWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

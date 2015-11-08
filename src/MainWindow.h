@@ -1,4 +1,7 @@
-
+#pragma once
+#include <glew.h>
+#include <gl/GLU.h>
+#include <gl/GL.h>
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
