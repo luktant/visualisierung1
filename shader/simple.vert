@@ -7,7 +7,7 @@ in vec4 vertex;
 
 out vec4 c;
 
-void main(void)
+void main()
 {   
     gl_Position = mvpMatrix * vertex;    
 	c = color;
