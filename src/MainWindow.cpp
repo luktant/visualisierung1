@@ -47,7 +47,7 @@ void MainWindow::openFileAction()
 		{
 			// create VOLUME
 			m_FileType.type = VOLUME;
-			m_Volume = new Volume();
+			m_Volume = new Volume(m_Ui->openGLWidget);
 
 			// load file
 			success = m_Volume->loadFromFile(filename, m_Ui->progressBar);

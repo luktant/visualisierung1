@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 
+#include "OGLWidget.h"
+
 #include <QProgressBar>
 
 
@@ -64,7 +66,7 @@ class Volume
 
 	public:
 
-		Volume();
+		Volume(OGLWidget *openGLWidget);
 		~Volume();
 
 
@@ -92,5 +94,7 @@ class Volume
 		int						m_Depth;
 
 		int						m_Size;
+
+		OGLWidget *openGLWidget;
 
 };

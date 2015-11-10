@@ -123,8 +123,8 @@ const Voxel Voxel::operator/(const float &value) const
 // Volume
 //-------------------------------------------------------------------------------------------------
 
-Volume::Volume()
-	: m_Width(1), m_Height(1), m_Depth(1), m_Size(0), m_Voxels(1)
+Volume::Volume(OGLWidget *openGLWidget)
+	: m_Width(1), m_Height(1), m_Depth(1), m_Size(0), m_Voxels(1), openGLWidget(openGLWidget)
 {
 }
 
@@ -245,6 +245,8 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 	progressBar->setValue(0);
 
 	std::cout << "Loaded VOLUME with dimensions " << m_Width << " x " << m_Height << " x " << m_Depth << std::endl;
+
+	//openGLWidget->paintGL(0.0f);
 
 	return true;
 }

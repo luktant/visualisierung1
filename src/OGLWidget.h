@@ -29,10 +29,11 @@ public:
 	QSize sizeHint() const;
 	bool fileLoaded;
 
+	void paintGL();
+
 protected:
 	void initializeGL();
 	void resizeGL(int w, int h);
-	void paintGL();
 
 private:
 	QMatrix4x4 pMatrix;
