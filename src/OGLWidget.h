@@ -18,6 +18,7 @@
 #include <QtWidgets/QWidget>
 #include <QtOpenGL>
 #include <QGLShaderProgram>
+#include <vector>
 
 class OGLWidget : public QGLWidget
 {
@@ -28,12 +29,13 @@ public:
 	
 	QSize sizeHint() const;
 	bool fileLoaded;
-
-	void paintGL();
+	std::vector<float> data;
+	float pixel[640*480];
 
 protected:
 	void initializeGL();
 	void resizeGL(int w, int h);
+	void paintGL();
 
 private:
 	QMatrix4x4 pMatrix;

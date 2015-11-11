@@ -4,8 +4,6 @@
 #include <string>
 #include <iostream>
 
-#include "OGLWidget.h"
-
 #include <QProgressBar>
 
 
@@ -66,7 +64,7 @@ class Volume
 
 	public:
 
-		Volume(OGLWidget *openGLWidget);
+		Volume();
 		~Volume();
 
 
@@ -83,7 +81,8 @@ class Volume
 		const int				size() const;
 
 		bool					loadFromFile(QString filename, QProgressBar* progressBar);
-
+		std::vector<float>		processVolume(QString filename, QProgressBar* progressBar);
+		std::vector<float>		rayCast();
 
 	private:
 
@@ -94,7 +93,5 @@ class Volume
 		int						m_Depth;
 
 		int						m_Size;
-
-		OGLWidget *openGLWidget;
 
 };

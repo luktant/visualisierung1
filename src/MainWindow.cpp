@@ -37,6 +37,7 @@ void MainWindow::openFileAction()
 		m_FileType.filename = filename;
 		std::string fn = filename.toStdString();
 		bool success = false;
+		std::vector<float> data;
 
 		// progress bar and top label
 		m_Ui->progressBar->setEnabled(true);
@@ -47,10 +48,16 @@ void MainWindow::openFileAction()
 		{
 			// create VOLUME
 			m_FileType.type = VOLUME;
-			m_Volume = new Volume(m_Ui->openGLWidget);
+			m_Volume = new Volume();
 
 			// load file
-			success = m_Volume->loadFromFile(filename, m_Ui->progressBar);
+			data = m_Volume->processVolume(filename, m_Ui->progressBar);
+
+			if (data[0] != -1){
+				success = true;
+				m_Ui->openGLWidget->data = data;
+			}
+
 		}
 		else if (fn.substr(fn.find_last_of(".") + 1) == "gri")		// LOAD VECTORFIELD
 		{
@@ -88,10 +95,10 @@ void MainWindow::openFileAction()
 			m_Ui->progressBar->setValue(0);
 		}
 
-		//if (success)
-		//{
+		if (success)
+		{
 			m_Ui->openGLWidget->fileLoaded=true;
-		//}
+		}
 	}
 }
 

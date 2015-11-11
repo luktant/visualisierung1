@@ -10,6 +10,8 @@
 #include "VectorField.h"
 #include "MultiSet.h"
 
+#include <vector>
+
 #include <QMainWindow>
 #include <QPushButton>
 #include <QLabel>

@@ -2,6 +2,9 @@
 
 #include <math.h>
 
+//has to be the same as in OGLWidget
+static const int pixel_x = 640;
+static const int pixel_y = 480;
 
 //-------------------------------------------------------------------------------------------------
 // Voxel
@@ -123,8 +126,8 @@ const Voxel Voxel::operator/(const float &value) const
 // Volume
 //-------------------------------------------------------------------------------------------------
 
-Volume::Volume(OGLWidget *openGLWidget)
-	: m_Width(1), m_Height(1), m_Depth(1), m_Size(0), m_Voxels(1), openGLWidget(openGLWidget)
+Volume::Volume()
+	: m_Width(1), m_Height(1), m_Depth(1), m_Size(0), m_Voxels(1)
 {
 }
 
@@ -169,8 +172,29 @@ const int Volume::size() const
 
 
 //-------------------------------------------------------------------------------------------------
-// Volume File Loader
+// Volume
 //-------------------------------------------------------------------------------------------------
+
+std::vector<float> Volume::processVolume(QString filename, QProgressBar* progressBar){
+	
+	bool success = loadFromFile(filename, progressBar);
+
+	std::vector<float> pixel;
+	pixel.resize(1);
+
+	if (success){
+
+		pixel = rayCast();
+
+	}else{
+
+		pixel[0] = -1;
+
+	}
+
+	return pixel;
+
+}
 
 bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 {
@@ -246,7 +270,26 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 
 	std::cout << "Loaded VOLUME with dimensions " << m_Width << " x " << m_Height << " x " << m_Depth << std::endl;
 
-	//openGLWidget->paintGL(0.0f);
-
 	return true;
+}
+
+std::vector<float> Volume::rayCast(){
+
+	std::vector<float> m;
+	m.resize(pixel_x * pixel_y);
+
+	for (int i = 0; i < pixel_y; i++){
+		for (int j = 0; j < pixel_x; j++){
+		
+			if (i % 2 == 1){
+				m[i*pixel_x + j] = 0.5;
+			}else{
+				m[i*pixel_x + j] = 0;
+			}
+		
+		}
+	}
+
+	return m;
+
 }
