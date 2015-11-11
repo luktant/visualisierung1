@@ -260,7 +260,7 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 		// data is converted to FLOAT values in an interval of [0.0 .. 1.0];
 		// uses 4095.0f to normalize the data, because only 12bit are used for the
 		// data values, and then 4095.0f is the maximum possible value
-		const float value = std::fmin(0.0f, float(vecData[i]) / 4095.0f);
+		const float value = std::fmax(0.0f, std::fmin(1.0f, (float(vecData[i]) / 4095.0f)));
 		m_Voxels[i] = Voxel(value);
 		
 		progressBar->setValue(10 + i);
@@ -275,6 +275,34 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 
 std::vector<float> Volume::rayCast(){
 
+	p.p1.resize(3);
+	p.p2.resize(3);
+	p.p3.resize(3);
+	p.p4.resize(3);
+	p.pivot.resize(3);
+
+	p.pivot[0] = m_Width / 2;
+	p.pivot[1] = m_Height / 2;
+	p.pivot[2] = m_Depth / 2;
+
+	p.p1[0] = -m_Width;
+	p.p1[1] = -m_Height;
+	p.p1[2] = -m_Depth;
+
+	p.p2[0] = 2*m_Width;
+	p.p2[1] = -m_Height;
+	p.p2[2] = -m_Depth;
+
+	p.p3[0] = 2*m_Width;
+	p.p3[1] = 2*m_Height;
+	p.p3[2] = -m_Depth;
+
+	p.p4[0] = -m_Width;
+	p.p4[1] = 2*m_Height;
+	p.p4[2] = -m_Depth;
+
+
+	/*
 	std::vector<float> m;
 	m.resize(pixel_x * pixel_y);
 
@@ -289,7 +317,9 @@ std::vector<float> Volume::rayCast(){
 		
 		}
 	}
-
+	*/
+	
+	
 	return m;
 
 }
