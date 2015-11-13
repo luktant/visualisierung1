@@ -3,8 +3,8 @@
 #include <math.h>
 
 //has to be the same as in OGLWidget
-static const int pixel_x = 640;
-static const int pixel_y = 480;
+static const int PIXEL_X = 640;
+static const int PIXEL_Y = 480;
 
 //-------------------------------------------------------------------------------------------------
 // Voxel
@@ -274,7 +274,7 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 }
 
 std::vector<float> Volume::rayCast(){
-
+	
 	p.p1.resize(3);
 	p.p2.resize(3);
 	p.p3.resize(3);
@@ -301,25 +301,56 @@ std::vector<float> Volume::rayCast(){
 	p.p4[1] = 2*m_Height;
 	p.p4[2] = -m_Depth;
 
+	std::vector<float> x, y;
+	x.resize(3);
+	y.resize(3);
 
-	/*
-	std::vector<float> m;
-	m.resize(pixel_x * pixel_y);
+	x[0] = p.p3[0] - p.p4[0];
+	x[1] = p.p3[1] - p.p4[1];
+	x[2] = p.p3[2] - p.p4[2];
 
-	for (int i = 0; i < pixel_y; i++){
-		for (int j = 0; j < pixel_x; j++){
+	y[0] = p.p1[0] - p.p4[0];
+	y[1] = p.p1[1] - p.p4[1];
+	y[2] = p.p1[2] - p.p4[2];
+
+	float deltaX, deltaY, lengthX, lengthY;
+
+	//normalize
+	lengthX = sqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]);
+	lengthY = sqrt(y[0] * y[0] + y[1] * y[1] + y[2] * y[2]);
+
+	x[0] = (1 / lengthX) * x[0];
+	x[1] = (1 / lengthX) * x[1];
+	x[2] = (1 / lengthX) * x[2];
+
+	y[0] = (1 / lengthY) * y[0];
+	y[1] = (1 / lengthY) * y[1];
+	y[2] = (1 / lengthY) * y[2];
+
+	deltaX = lengthX / PIXEL_X;
+	deltaY = lengthY / PIXEL_Y;
+	
+	std::vector<float> out;
+	out.resize(PIXEL_X * PIXEL_Y);
+
+	std::vector<float> currentPos;
+	currentPos.resize(3);
+
+	for (int i = 0; i < PIXEL_Y; i++){
+		for (int j = 0; j < PIXEL_X; j++){
 		
+			currentPos[0] = p.p4[0] + (x[0] * deltaX * j) + (y[0] * deltaY * i);
+			currentPos[1] = p.p4[1] + (x[1] * deltaX * j) + (y[1] * deltaY * i);
+			currentPos[2] = p.p4[2] + (x[2] * deltaX * j) + (y[2] * deltaY * i);
+
 			if (i % 2 == 1){
-				m[i*pixel_x + j] = 0.5;
+				out[i*PIXEL_X + j] = 0.5;
 			}else{
-				m[i*pixel_x + j] = 0;
+				out[i*PIXEL_X + j] = 0;
 			}
-		
 		}
 	}
-	*/
 	
-	
-	return m;
+	return out;
 
 }
