@@ -66,6 +66,7 @@ public:
 	std::vector<int>		p2;
 	std::vector<int>		p3;
 	std::vector<int>		p4;
+	std::vector<int>		middle;
 	std::vector<int>		pivot;
 };
 
