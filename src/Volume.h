@@ -54,20 +54,31 @@ class Voxel
 
 };
 
+//-------------------------------------------------------------------------------------------------
+// vec3
+//-------------------------------------------------------------------------------------------------
+
+struct vec3{
+	float x;
+	float y;
+	float z;
+};
 
 //-------------------------------------------------------------------------------------------------
-// Plane
+// plane
 //-------------------------------------------------------------------------------------------------
 
-class Plane
+struct plane
 {
-public:
-	std::vector<int>		p1;
-	std::vector<int>		p2;
-	std::vector<int>		p3;
-	std::vector<int>		p4;
-	std::vector<int>		middle;
-	std::vector<int>		pivot;
+	vec3					p1;
+	vec3					p2;
+	vec3					p3;
+	vec3					p4;
+	vec3					middle;
+	vec3					pivot;
+	vec3					v;
+	vec3					x;
+	vec3					y;
 };
 
 
@@ -99,12 +110,12 @@ class Volume
 		bool					loadFromFile(QString filename, QProgressBar* progressBar);
 		std::vector<float>		processVolume(QString filename, QProgressBar* progressBar);
 		std::vector<float>		rayCast();
+		bool					lineIntersection(vec3 p1, vec3 p2);
 
 	private:
 
 		std::vector<Voxel>		m_Voxels;
-		Plane					p;
-
+		plane					p;
 		int						m_Width;
 		int						m_Height;
 		int						m_Depth;

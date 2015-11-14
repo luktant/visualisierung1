@@ -275,92 +275,73 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 
 std::vector<float> Volume::rayCast(){
 	
-	p.p1.resize(3);
-	p.p2.resize(3);
-	p.p3.resize(3);
-	p.p4.resize(3);
-	p.middle.resize(3);
-	p.pivot.resize(3);
+	p.pivot.x = m_Width / 2;
+	p.pivot.y = m_Height / 2;
+	p.pivot.z = m_Depth / 2;
 
-	p.pivot[0] = m_Width / 2;
-	p.pivot[1] = m_Height / 2;
-	p.pivot[2] = m_Depth / 2;
+	p.p1.x = p.pivot.x - PIXEL_X / 2;
+	p.p1.y = p.pivot.y - PIXEL_Y / 2;
+	p.p1.z = -1000;
 
-	p.p1[0] = p.pivot[0] - PIXEL_X / 2;
-	p.p1[1] = p.pivot[1] - PIXEL_Y / 2;
-	p.p1[2] = -1000;
+	p.p2.x = p.pivot.x + PIXEL_X / 2;
+	p.p2.y = p.pivot.y - PIXEL_Y / 2;
+	p.p2.z = -1000;
 
-	p.p2[0] = p.pivot[0] + PIXEL_X / 2;
-	p.p2[1] = p.pivot[1] - PIXEL_Y / 2;
-	p.p2[2] = -1000;
+	p.p3.x = p.pivot.x + PIXEL_X / 2;
+	p.p3.y = p.pivot.y + PIXEL_Y / 2;
+	p.p3.z = -1000;
 
-	p.p3[0] = p.pivot[0] + PIXEL_X / 2;
-	p.p3[1] = p.pivot[1] + PIXEL_Y / 2;
-	p.p3[2] = -1000;
+	p.p4.x = p.pivot.x - PIXEL_X / 2;
+	p.p4.y = p.pivot.y + PIXEL_Y / 2;
+	p.p4.z = -1000;
 
-	p.p4[0] = p.pivot[0] - PIXEL_X / 2;
-	p.p4[1] = p.pivot[1] + PIXEL_Y / 2;
-	p.p4[2] = -1000;
+	p.middle.x = p.pivot.x;
+	p.middle.y = p.pivot.y;
+	p.middle.z = -1000;
 
-	p.middle[0] = p.pivot[0];
-	p.middle[1] = p.pivot[1];
-	p.middle[2] = -1000;
+	p.v.x = 0;
+	p.v.y = 0;
+	p.v.z = -p.middle.z + std::max(m_Width, std::max(m_Height, m_Depth));
 
-	std::vector<float> v;
-	v.resize(3);
+	p.x.x = p.p3.x - p.p4.x;
+	p.x.y = p.p3.y - p.p4.y;
+	p.x.z = p.p3.z - p.p4.z;
 
-	v[0] = 0;
-	v[1] = 0;
-	v[2] = -p.middle[2] + m_Depth / 2;
-
-	std::vector<float> x, y;
-	x.resize(3);
-	y.resize(3);
-
-	x[0] = p.p3[0] - p.p4[0];
-	x[1] = p.p3[1] - p.p4[1];
-	x[2] = p.p3[2] - p.p4[2];
-
-	y[0] = p.p1[0] - p.p4[0];
-	y[1] = p.p1[1] - p.p4[1];
-	y[2] = p.p1[2] - p.p4[2];
+	p.y.x = p.p1.x - p.p4.x;
+	p.y.y = p.p1.y - p.p4.y;
+	p.y.z = p.p1.z - p.p4.z;
 
 	//normalize
-	x[0] = (1 / PIXEL_X) * x[0];
-	x[1] = (1 / PIXEL_X) * x[1];
-	x[2] = (1 / PIXEL_X) * x[2];
+	p.x.x = (1 / PIXEL_X) * p.x.x;
+	p.x.y = (1 / PIXEL_X) * p.x.y;
+	p.x.z = (1 / PIXEL_X) * p.x.z;
 
-	y[0] = (1 / PIXEL_Y) * y[0];
-	y[1] = (1 / PIXEL_Y) * y[1];
-	y[2] = (1 / PIXEL_Y) * y[2];
+	p.y.x = (1 / PIXEL_Y) * p.y.x;
+	p.y.y = (1 / PIXEL_Y) * p.y.y;
+	p.y.z = (1 / PIXEL_Y) * p.y.z;
 		
 	std::vector<float> out;
 	out.resize(PIXEL_X * PIXEL_Y);
-
-	std::vector<float> currentPos;
-	currentPos.resize(3);
-
-	std::vector<float> tempPos;
-	tempPos.resize(3);
+	vec3 currentPos, tempPos;
 
 	for (int i = 0; i < PIXEL_Y; i++){
 		for (int j = 0; j < PIXEL_X; j++){
 		
-			currentPos[0] = p.p4[0] + (x[0] * j) + (y[0] * i);
-			currentPos[1] = p.p4[1] + (x[1] * j) + (y[1] * i);
-			currentPos[2] = p.p4[2] + (x[2] * j) + (y[2] * i);
+			currentPos.x = p.p4.x + (p.x.x * j) + (p.y.x * i);
+			currentPos.y = p.p4.y + (p.x.y * j) + (p.y.y * i);
+			currentPos.z = p.p4.z + (p.x.z * j) + (p.y.z * i);
 
 			//current + v to get other point
 
-			tempPos[0] = currentPos[0] + v[0];
-			tempPos[2] = currentPos[2] + v[2];
-			tempPos[3] = currentPos[3] + v[3];
+			tempPos.x = currentPos.x + p.v.x;
+			tempPos.y = currentPos.y + p.v.y;
+			tempPos.z = currentPos.z + p.v.z;
 
 			//intersect line with volume box
 
+			bool intersecting = lineIntersection(currentPos, tempPos);
 
-
-			if (i % 2 == 1){
+			if (intersecting){
 				out[i*PIXEL_X + j] = 0.5;
 			}else{
 				out[i*PIXEL_X + j] = 0;
@@ -370,4 +351,18 @@ std::vector<float> Volume::rayCast(){
 	
 	return out;
 
+}
+
+bool Volume::lineIntersection(vec3 p1, vec3 p2){
+	
+	if (p1.x < 0 && p2.x < 0) return false;
+	if (p1.x > m_Width && p2.x > m_Width) return false;
+
+	if (p1.y < 0 && p2.y < 0) return false;
+	if (p1.y > m_Height && p2.y > m_Height) return false;
+
+	if (p1.z < 0 && p2.z < 0) return false;
+	if (p1.z > m_Depth && p2.z > m_Depth) return false;
+	
+	return true;
 }
