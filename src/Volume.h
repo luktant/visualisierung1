@@ -68,8 +68,9 @@ struct vec3{
 // plane
 //-------------------------------------------------------------------------------------------------
 
-struct plane
+class Plane
 {
+public:
 	vec3					p1;
 	vec3					p2;
 	vec3					p3;
@@ -110,16 +111,16 @@ class Volume
 		bool					loadFromFile(QString filename, QProgressBar* progressBar);
 		std::vector<float>		processVolume(QString filename, QProgressBar* progressBar);
 		std::vector<float>		rayCast();
-		bool					lineIntersection(vec3 p1, vec3 p2);
+		bool					lineIntersection(vec3 p1, vec3 p2, vec3& enter, vec3& exit);
+		void					initPlane();
 
 	private:
 
 		std::vector<Voxel>		m_Voxels;
-		plane					p;
+		Plane					p;
 		int						m_Width;
 		int						m_Height;
 		int						m_Depth;
-
 		int						m_Size;
-
+		bool					start = true;
 };

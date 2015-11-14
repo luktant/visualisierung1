@@ -183,7 +183,10 @@ std::vector<float> Volume::processVolume(QString filename, QProgressBar* progres
 	pixel.resize(1);
 
 	if (success){
-
+		if (start){
+			initPlane();
+			start = false;
+		}
 		pixel = rayCast();
 
 	}else{
@@ -274,7 +277,53 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 }
 
 std::vector<float> Volume::rayCast(){
+		
+	std::vector<float> out;
+	out.resize(PIXEL_X * PIXEL_Y);
+	vec3 start, end, enter, exit;
+
+	for (int i = 0; i < PIXEL_Y; i++){
+		for (int j = 0; j < PIXEL_X; j++){
+		
+			start.x = p.p4.x + (p.x.x * j) + (p.y.x * i);
+			start.y = p.p4.y + (p.x.y * j) + (p.y.y * i);
+			start.z = p.p4.z + (p.x.z * j) + (p.y.z * i);
+
+			end.x = start.x + p.v.x;
+			end.y = start.y + p.v.y;
+			end.z = start.z + p.v.z;
+
+			bool intersecting = lineIntersection(start, end, enter, exit);
+
+			if (intersecting){
+				out[i*PIXEL_X + j] = 1;
+			}else{
+				out[i*PIXEL_X + j] = 0;
+			}
+		}
+	}
 	
+	return out;
+
+}
+
+bool Volume::lineIntersection(vec3 p1, vec3 p2, vec3& enter, vec3& exit){
+	
+	//discard rays that aren't in the area
+	if (p1.x < 0 && p2.x < 0) return false;
+	if (p1.x > m_Width && p2.x > m_Width) return false;
+
+	if (p1.y < 0 && p2.y < 0) return false;
+	if (p1.y > m_Height && p2.y > m_Height) return false;
+
+	if (p1.z < 0 && p2.z < 0) return false;
+	if (p1.z > m_Depth && p2.z > m_Depth) return false;
+
+	return true;
+
+}
+
+void Volume::initPlane(){
 	p.pivot.x = m_Width / 2;
 	p.pivot.y = m_Height / 2;
 	p.pivot.z = m_Depth / 2;
@@ -312,57 +361,11 @@ std::vector<float> Volume::rayCast(){
 	p.y.z = p.p1.z - p.p4.z;
 
 	//normalize
-	p.x.x = (1 / PIXEL_X) * p.x.x;
-	p.x.y = (1 / PIXEL_X) * p.x.y;
-	p.x.z = (1 / PIXEL_X) * p.x.z;
+	p.x.x = p.x.x / PIXEL_X;
+	p.x.y = p.x.y / PIXEL_X;
+	p.x.z = p.x.z / PIXEL_X;
 
-	p.y.x = (1 / PIXEL_Y) * p.y.x;
-	p.y.y = (1 / PIXEL_Y) * p.y.y;
-	p.y.z = (1 / PIXEL_Y) * p.y.z;
-		
-	std::vector<float> out;
-	out.resize(PIXEL_X * PIXEL_Y);
-	vec3 currentPos, tempPos;
-
-	for (int i = 0; i < PIXEL_Y; i++){
-		for (int j = 0; j < PIXEL_X; j++){
-		
-			currentPos.x = p.p4.x + (p.x.x * j) + (p.y.x * i);
-			currentPos.y = p.p4.y + (p.x.y * j) + (p.y.y * i);
-			currentPos.z = p.p4.z + (p.x.z * j) + (p.y.z * i);
-
-			//current + v to get other point
-
-			tempPos.x = currentPos.x + p.v.x;
-			tempPos.y = currentPos.y + p.v.y;
-			tempPos.z = currentPos.z + p.v.z;
-
-			//intersect line with volume box
-
-			bool intersecting = lineIntersection(currentPos, tempPos);
-
-			if (intersecting){
-				out[i*PIXEL_X + j] = 0.5;
-			}else{
-				out[i*PIXEL_X + j] = 0;
-			}
-		}
-	}
-	
-	return out;
-
-}
-
-bool Volume::lineIntersection(vec3 p1, vec3 p2){
-	
-	if (p1.x < 0 && p2.x < 0) return false;
-	if (p1.x > m_Width && p2.x > m_Width) return false;
-
-	if (p1.y < 0 && p2.y < 0) return false;
-	if (p1.y > m_Height && p2.y > m_Height) return false;
-
-	if (p1.z < 0 && p2.z < 0) return false;
-	if (p1.z > m_Depth && p2.z > m_Depth) return false;
-	
-	return true;
+	p.y.x = p.y.x / PIXEL_Y;
+	p.y.y = p.y.y / PIXEL_Y;
+	p.y.z = p.y.z / PIXEL_Y;
 }
