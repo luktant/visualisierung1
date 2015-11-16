@@ -278,23 +278,32 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 
 std::vector<float> Volume::rayCast(){
 		
+	//the vector in which the values are stored and printed out
+	//from 0.0 to 1.0 values only!!
 	std::vector<float> out;
 	out.resize(PIXEL_X * PIXEL_Y);
-	vec3 start, end, enter, exit;
 
+	//start of the ray | end of the ray | first intersection | second intersection
+	vec3 start, end, intersec1, intersec2;
+
+	//loop that runs thorugh every pixel of the plane and shoots a ray
 	for (int i = 0; i < PIXEL_Y; i++){
 		for (int j = 0; j < PIXEL_X; j++){
 		
+			//start of ray
 			start.x = p.p4.x + (p.x.x * j) + (p.y.x * i);
 			start.y = p.p4.y + (p.x.y * j) + (p.y.y * i);
 			start.z = p.p4.z + (p.x.z * j) + (p.y.z * i);
 
+			//end of ray
 			end.x = start.x + p.v.x;
 			end.y = start.y + p.v.y;
 			end.z = start.z + p.v.z;
 
-			bool intersecting = lineIntersection(start, end, enter, exit);
+			//returns bool | if true the an intersection is found and both intersections are stored in intersec1 and intersec2
+			bool intersecting = lineIntersection(start, end, p.v, intersec1, intersec2);
 
+			//this can be deleted, only purpose is a visual output of the bounding box
 			if (intersecting){
 				out[i*PIXEL_X + j] = 1;
 			}else{
@@ -307,7 +316,7 @@ std::vector<float> Volume::rayCast(){
 
 }
 
-bool Volume::lineIntersection(vec3 p1, vec3 p2, vec3& enter, vec3& exit){
+bool Volume::lineIntersection(vec3 p1, vec3 p2, vec3 v, vec3& intersec1, vec3& intersec2){
 	
 	//discard rays that aren't in the area
 	if (p1.x < 0 && p2.x < 0) return false;
@@ -319,8 +328,128 @@ bool Volume::lineIntersection(vec3 p1, vec3 p2, vec3& enter, vec3& exit){
 	if (p1.z < 0 && p2.z < 0) return false;
 	if (p1.z > m_Depth && p2.z > m_Depth) return false;
 
-	return true;
+	bool firstIntersectFound = false;
+	vec3 temp;
 
+	// check if parralel
+	if (v.x == 0){
+		if (v.y != 0 && v.z != 0){
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, 0)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, m_Height)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, 0)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, m_Depth)) return true;
+			return false;
+		}
+		else{
+			if (v.y == 0){
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, 0)) return true;
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, m_Depth)) return true;
+				return false;
+			}
+			if (v.z == 0){
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, 0)) return true;
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, m_Height)) return true;
+				return false;
+			}
+		}
+	}
+
+	if (v.y == 0){
+		if (v.x != 0 && v.z != 0){
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, 0)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, m_Width)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, 0)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, m_Depth)) return true;
+			return false;
+		}
+		else{
+			if (v.x == 0){
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, 0)) return true;
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, m_Depth)) return true;
+				return false;
+			}
+			if (v.z == 0){
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, 0)) return true;
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, m_Width)) return true;
+				return false;
+			}
+		}
+	}
+
+	if (v.z == 0){
+		if (v.x != 0 && v.y != 0){
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, 0)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, m_Width)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, 0)) return true;
+			if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, m_Height)) return true;
+			return false;
+		}
+		else{
+			if (v.y == 0){
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, 0)) return true;
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, m_Width)) return true;
+				return false;
+			}
+			if (v.x == 0){
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, 0)) return true;
+				if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, m_Height)) return true;
+				return false;
+			}
+		}
+	}
+
+	//not parallel
+	if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, 0)) return true;
+	if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, X, m_Width)) return true;
+	if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, 0)) return true;
+	if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Y, m_Height)) return true;
+	if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, 0)) return true;
+	if (searchForIntersection(p1, v, firstIntersectFound, intersec1, intersec2, Z, m_Depth)) return true;
+	return false;
+}
+
+bool Volume::searchForIntersection(vec3 p1, vec3 v, bool& firstIntersectFound, vec3& intersec1, vec3& intersec2, Axis axis, float fixPoint){
+	vec3 temp;
+
+	if (axis == X){
+		float s = (fixPoint - p1.x) / v.x;
+		temp.x = fixPoint;
+		temp.y = p1.y + s * v.y;
+		temp.z = p1.z + s * v.z;
+	}
+
+	if (axis == Y){
+		float s = (fixPoint - p1.y) / v.y;
+		temp.x = p1.x + s * v.x;
+		temp.y = fixPoint;
+		temp.z = p1.z + s * v.z;
+	}
+
+	if (axis == Z){
+		float s = (fixPoint - p1.z) / v.z;
+		temp.x = p1.x + s * v.x;
+		temp.y = p1.y + s * v.y;
+		temp.z = fixPoint;
+	}
+
+	if (checkIfInBB(temp)){
+		if (!firstIntersectFound){
+			intersec1 = temp;
+			firstIntersectFound = true;
+			return false;
+		}else{
+			if (!(intersec1.x == temp.x && intersec1.y == temp.y && intersec1.z == temp.z)){
+				intersec2 = temp;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Volume::checkIfInBB(vec3 p){
+	if (p.x < 0 || p.x > m_Width || p.y < 0 || p.y > m_Height || p.z < 0 || p.z > m_Depth) return false;
+	return true;
 }
 
 void Volume::initPlane(){

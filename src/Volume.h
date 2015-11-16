@@ -107,11 +107,14 @@ class Volume
 		const int				depth() const;
 
 		const int				size() const;
+		enum					Axis { X, Y, Z };
 
 		bool					loadFromFile(QString filename, QProgressBar* progressBar);
 		std::vector<float>		processVolume(QString filename, QProgressBar* progressBar);
 		std::vector<float>		rayCast();
-		bool					lineIntersection(vec3 p1, vec3 p2, vec3& enter, vec3& exit);
+		bool					lineIntersection(vec3 p1, vec3 p2, vec3 v, vec3& intersec1, vec3& intersec2);
+		bool					searchForIntersection(vec3 p1, vec3 v, bool& firstIntersectFound, vec3& intersec1, vec3& intersec2, Axis axis, float fixPoint);
+		bool					checkIfInBB(vec3 p);
 		void					initPlane();
 
 	private:
