@@ -86,7 +86,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>src;generated;lib;lib\glfw\include;lib\glew\include;lib\glm\include;lib\qt\include;lib\qt\include\QtCLucene;lib\qt\include\QtCore;lib\qt\include\QtGui;lib\qt\include\QtOpenGL;lib\qt\include\QtOpenGLExtensions;lib\qt\include\QtPlatformSupport;lib\qt\include\QtUiTools;lib\qt\include\QtWidgets;lib\qt\include\QtZlib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;generated;lib;lib\glm\include;lib\glfw\include;lib\glew\include;lib\qt\include;lib\qt\include\QtCLucene;lib\qt\include\QtCore;lib\qt\include\QtGui;lib\qt\include\QtOpenGL;lib\qt\include\QtOpenGLExtensions;lib\qt\include\QtPlatformSupport;lib\qt\include\QtUiTools;lib\qt\include\QtWidgets;lib\qt\include\QtZlib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -114,7 +114,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>src;generated;lib;lib\glfw\include;lib\glew\include;lib\glm\include;lib\qt\include;lib\qt\include\QtCLucene;lib\qt\include\QtCore;lib\qt\include\QtGui;lib\qt\include\QtOpenGL;lib\qt\include\QtOpenGLExtensions;lib\qt\include\QtPlatformSupport;lib\qt\include\QtUiTools;lib\qt\include\QtWidgets;lib\qt\include\QtZlib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;generated;lib;lib\glm\include;lib\glfw\include;lib\glew\include;lib\qt\include;lib\qt\include\QtCLucene;lib\qt\include\QtCore;lib\qt\include\QtGui;lib\qt\include\QtOpenGL;lib\qt\include\QtOpenGLExtensions;lib\qt\include\QtPlatformSupport;lib\qt\include\QtUiTools;lib\qt\include\QtWidgets;lib\qt\include\QtZlib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

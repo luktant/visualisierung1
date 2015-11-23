@@ -1,6 +1,8 @@
 #include "Volume.h"
-
 #include <math.h>
+#include <glm.hpp>
+#include <gtx/string_cast.hpp>
+#include <gtc/matrix_transform.hpp>
 
 //has to be the same as in OGLWidget
 static const int PIXEL_X = 640;
@@ -280,6 +282,9 @@ std::vector<float> Volume::rayCast(){
 	std::vector<float> out;
 	out.resize(PIXEL_X * PIXEL_Y);
 
+	//select the stepsize for frequency of taking samples
+	//with 32 each image is shown "normal"
+	//minimal values for correct visualisation: head (small and large) = 8.f, others (small and large) 32.f
 	float sample_step_size = 32.f;
 
 	//start of the ray | end of the ray | first intersection | second intersection
@@ -301,38 +306,27 @@ std::vector<float> Volume::rayCast(){
 
 			//returns bool | if true the an intersection is found and both intersections are stored in intersec1 and intersec2
 			bool intersecting = lineIntersection(start, end, p.v, intersec1, intersec2);
-			
-			float maximumIntensity = 0;
-			float intensities = 0;
+
+			float maximumIntensity = 0.f;
 
 			if (intersecting)
 			{
-				float x_start = intersec1.x;
-				float y_start = intersec1.y;
-				float z_start = intersec1.z;
+				glm::vec3 front = glm::vec3(intersec1.x, intersec1.y, intersec1.z);
+				glm::vec3 back = glm::vec3(intersec2.x, intersec2.y, intersec2.z);
 
-				float x_end = intersec2.x;
-				float y_end = intersec2.y;
-				float z_end = intersec2.z;
+				glm::vec3 direction = normalize(back - front);
 
-				float dX = x_end - x_start;
-				float dY = y_end - y_start;
-				float dZ = z_end - z_start;
+				float value;
 
-				float stepsize_z = sample_step_size;
-				float stepsize_x = (dX>0?dX*stepsize_z/dZ:0);
-				float stepsize_y = (dY>0?dY*stepsize_z/dZ:0);
+				//Maximum-Intensity-Projektion
+				for (float directionLength = glm::length(back - front); directionLength > 0.0; directionLength -= sample_step_size){
 
-				float val;
-				while (z_start < z_end)
-				{
-					val = m_Voxels[round(x_start) + m_Width*(round(y_start) + m_Depth*round(z_start))].getValue();
-
-					if (val > maximumIntensity) maximumIntensity = val;
-
-					x_start += stepsize_x;
-					y_start += stepsize_y;
-					z_start += stepsize_z;
+					//get the voxel-value at the actual ray position and compare with the latest maximum
+					value = m_Voxels[round(front.x) + m_Width*(round(front.y) + m_Depth*round(front.z))].getValue();
+					if (value > maximumIntensity) maximumIntensity = value;
+					
+					//get the next position
+					front = front + sample_step_size*direction;
 				}
 			}
 			out[i*PIXEL_X + j] = maximumIntensity;
@@ -343,6 +337,7 @@ std::vector<float> Volume::rayCast(){
 
 float Volume::averageIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start)
 {
+	//so far not in use, creates a smudged image (obviously)
 	float intensities = 0;
 	int norm = 0;
 	//Lower-left
@@ -392,6 +387,7 @@ float Volume::averageIntensityOf9x9Neighbourhood(float x_start, float y_start, f
 }
 
 float Volume::maxIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start){
+	//so far not in use, heavy bleeding (also obviously)
 	float maximumIntensity = INT_MIN;
 	//Lower-left
 	if (x_start>0 && y_start>0) {
