@@ -126,4 +126,7 @@ class Volume
 		int						m_Depth;
 		int						m_Size;
 		bool					start = true;
+
+		float averageIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start);
+		float maxIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start);
 };

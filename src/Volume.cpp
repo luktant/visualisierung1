@@ -190,9 +190,7 @@ std::vector<float> Volume::processVolume(QString filename, QProgressBar* progres
 		pixel = rayCast();
 
 	}else{
-
 		pixel[0] = -1;
-
 	}
 
 	return pixel;
@@ -265,10 +263,9 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 		// data values, and then 4095.0f is the maximum possible value
 		const float value = std::fmax(0.0f, std::fmin(1.0f, (float(vecData[i]) / 4095.0f)));
 		m_Voxels[i] = Voxel(value);
-		
 		progressBar->setValue(10 + i);
 	}
-
+	
 	progressBar->setValue(0);
 
 	std::cout << "Loaded VOLUME with dimensions " << m_Width << " x " << m_Height << " x " << m_Depth << std::endl;
@@ -282,6 +279,8 @@ std::vector<float> Volume::rayCast(){
 	//from 0.0 to 1.0 values only!!
 	std::vector<float> out;
 	out.resize(PIXEL_X * PIXEL_Y);
+
+	float sample_step_size = 32.f;
 
 	//start of the ray | end of the ray | first intersection | second intersection
 	vec3 start, end, intersec1, intersec2;
@@ -302,18 +301,133 @@ std::vector<float> Volume::rayCast(){
 
 			//returns bool | if true the an intersection is found and both intersections are stored in intersec1 and intersec2
 			bool intersecting = lineIntersection(start, end, p.v, intersec1, intersec2);
+			
+			float maximumIntensity = 0;
+			float intensities = 0;
 
-			//this can be deleted, only purpose is a visual output of the bounding box
-			if (intersecting){
-				out[i*PIXEL_X + j] = 1;
-			}else{
-				out[i*PIXEL_X + j] = 0;
+			if (intersecting)
+			{
+				float x_start = intersec1.x;
+				float y_start = intersec1.y;
+				float z_start = intersec1.z;
+
+				float x_end = intersec2.x;
+				float y_end = intersec2.y;
+				float z_end = intersec2.z;
+
+				float dX = x_end - x_start;
+				float dY = y_end - y_start;
+				float dZ = z_end - z_start;
+
+				float stepsize_z = sample_step_size;
+				float stepsize_x = (dX>0?dX*stepsize_z/dZ:0);
+				float stepsize_y = (dY>0?dY*stepsize_z/dZ:0);
+
+				float val;
+				while (z_start < z_end)
+				{
+					val = m_Voxels[round(x_start) + m_Width*(round(y_start) + m_Depth*round(z_start))].getValue();
+
+					if (val > maximumIntensity) maximumIntensity = val;
+
+					x_start += stepsize_x;
+					y_start += stepsize_y;
+					z_start += stepsize_z;
+				}
 			}
+			out[i*PIXEL_X + j] = maximumIntensity;
 		}
 	}
-	
 	return out;
+}
 
+float Volume::averageIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start)
+{
+	float intensities = 0;
+	int norm = 0;
+	//Lower-left
+	if (x_start>0 && y_start>0) {
+		intensities += m_Voxels[(x_start - 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
+		norm++;
+	}
+	//Lower-center
+	if (y_start>0) {
+		intensities += m_Voxels[x_start + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
+		norm++;
+	}
+	//Lower-right
+	if (x_start<m_Width && y_start>0) {
+		intensities += m_Voxels[(x_start + 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
+		norm++;
+	}
+	//Center-left
+	if (x_start>0) {
+		intensities += m_Voxels[(x_start - 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue();
+		norm++;
+	}
+	//Center
+	intensities += m_Voxels[x_start + m_Width*(y_start + m_Depth*round(z_start))].getValue();
+	norm++;
+	//Center-right
+	if (x_start<m_Width) {
+		intensities += m_Voxels[(x_start + 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue();
+		norm++;
+	}
+	//Upper-left
+	if (x_start > 0 && y_start<m_Height) {
+		intensities += m_Voxels[(x_start - 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
+		norm++;
+	}
+	//Upper-center
+	if (y_start<m_Height) {
+		intensities += m_Voxels[x_start + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
+		norm++;
+	}
+	//Upper-right
+	if (x_start<m_Width && y_start<m_Height) {
+		intensities += m_Voxels[(x_start + 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
+		norm++;
+	}
+	return intensities/norm;
+}
+
+float Volume::maxIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start){
+	float maximumIntensity = INT_MIN;
+	//Lower-left
+	if (x_start>0 && y_start>0) {
+		if (m_Voxels[(x_start - 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start - 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
+	}
+	//Lower-center
+	if (y_start>0) {
+		if (m_Voxels[x_start + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[x_start + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
+	}
+	//Lower-right
+	if (x_start<m_Width && y_start>0) {
+		if (m_Voxels[(x_start + 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start + 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
+	}
+	//Center-left
+	if (x_start>0) {
+		if (m_Voxels[(x_start - 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start - 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue();
+	}
+	//Center
+	if (m_Voxels[x_start + m_Width*(y_start + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[x_start + m_Width*(y_start + m_Depth*round(z_start))].getValue();
+	//Center-right
+	if (x_start<m_Width) {
+		if (m_Voxels[(x_start + 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start + 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue();
+	}
+	//Upper-left
+	if (x_start > 0 && y_start<m_Height) {
+		if (m_Voxels[(x_start - 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start - 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
+	}
+	//Upper-center
+	if (y_start<m_Height) {
+		if (m_Voxels[x_start + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[x_start + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
+	}
+	//Upper-right
+	if (x_start<m_Width && y_start<m_Height) {
+		if (m_Voxels[(x_start + 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start + 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
+	}
+	return maximumIntensity;
 }
 
 bool Volume::lineIntersection(vec3 p1, vec3 p2, vec3 v, vec3& intersec1, vec3& intersec2){

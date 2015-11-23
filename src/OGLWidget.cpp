@@ -30,7 +30,7 @@ void OGLWidget::initializeGL()
 
 void OGLWidget::paintGL()
 {
-	if (!fileLoaded){
+	if (fileLoaded){/*
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -46,7 +46,7 @@ void OGLWidget::paintGL()
 		shaderProgram.disableAttributeArray("vertex");
 		shaderProgram.release();
 
-	}else{
+	}else{*/
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		float* pixel = &data[0];
 		glDrawPixels(640, 480, GL_LUMINANCE, GL_FLOAT, pixel);
