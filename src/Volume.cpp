@@ -276,7 +276,6 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 }
 
 std::vector<float> Volume::rayCast(){
-		
 	//the vector in which the values are stored and printed out
 	//from 0.0 to 1.0 values only!!
 	std::vector<float> out;
@@ -314,25 +313,79 @@ std::vector<float> Volume::rayCast(){
 				glm::vec3 front = glm::vec3(intersec1.x, intersec1.y, intersec1.z);
 				glm::vec3 back = glm::vec3(intersec2.x, intersec2.y, intersec2.z);
 
-				glm::vec3 direction = normalize(back - front);
+				glm::vec3 direction = (back - front);
+				direction = glm::vec3(direction.x*sample_step_size / direction.z, direction.y*sample_step_size / direction.z, sample_step_size);
 
 				float value;
 
 				//Maximum-Intensity-Projektion
-				for (float directionLength = glm::length(back - front); directionLength > 0.0; directionLength -= sample_step_size){
-
+				while (front.z < back.z){
 					//get the voxel-value at the actual ray position and compare with the latest maximum
 					value = m_Voxels[round(front.x) + m_Width*(round(front.y) + m_Depth*round(front.z))].getValue();
 					if (value > maximumIntensity) maximumIntensity = value;
-					
+
 					//get the next position
-					front = front + sample_step_size*direction;
+					front = front + direction;
 				}
 			}
 			out[i*PIXEL_X + j] = maximumIntensity;
 		}
 	}
 	return out;
+}
+
+void Volume::rotate(float theta)
+{
+	//rotation axis
+	glm::vec3 k = glm::vec3(0, 1, 0);
+	
+	glm::vec3 helper = glm::vec3(p.middle.x, p.middle.y, p.middle.z);
+	glm::vec3 rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));	
+	p.middle.x = rotated.x;
+	p.middle.y = rotated.y;
+	p.middle.z = rotated.z;
+
+	helper = glm::vec3(p.p1.x, p.p1.y, p.p1.z);
+	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
+	p.p1.x = rotated.x;
+	p.p1.y = rotated.y;
+	p.p1.z = rotated.z;
+
+	helper = glm::vec3(p.p2.x, p.p2.y, p.p2.z);
+	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
+	p.p2.x = rotated.x;
+	p.p2.y = rotated.y;
+	p.p2.z = rotated.z;
+
+	helper = glm::vec3(p.p3.x, p.p3.y, p.p3.z);
+	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
+	p.p3.x = rotated.x;
+	p.p3.y = rotated.y;
+	p.p3.z = rotated.z;
+
+	helper = glm::vec3(p.p4.x, p.p4.y, p.p4.z);
+	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
+	p.p4.x = rotated.x;
+	p.p4.y = rotated.y;
+	p.p4.z = rotated.z;
+
+	helper = glm::vec3(p.x.x, p.x.y, p.x.z);
+	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
+	p.x.x = rotated.x;
+	p.x.y = rotated.y;
+	p.x.z = rotated.z;
+
+	helper = glm::vec3(p.y.x, p.y.y, p.y.z);
+	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
+	p.y.x = rotated.x;
+	p.y.y = rotated.y;
+	p.y.z = rotated.z;
+
+	helper = glm::vec3(p.v.x, p.v.y, p.v.z);
+	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
+	p.v.x = rotated.x;
+	p.v.y = rotated.y;
+	p.v.z = rotated.z;
 }
 
 float Volume::averageIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start)

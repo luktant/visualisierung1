@@ -3,7 +3,10 @@
 OGLWidget::OGLWidget(QWidget *parent) :
 		QGLWidget(QGLFormat(), parent)
 {
-	fileLoaded = false;	
+	fileLoaded = false;
+	QTimer *timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+	timer->start(50);
 }
 
 OGLWidget::~OGLWidget()
@@ -13,7 +16,6 @@ OGLWidget::~OGLWidget()
 
 void OGLWidget::initializeGL()
 {
-
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	qglClearColor(QColor(Qt::black));
@@ -29,24 +31,10 @@ void OGLWidget::initializeGL()
 }
 
 void OGLWidget::paintGL()
-{
-	if (fileLoaded){/*
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		QMatrix4x4 mMatrix;
-		QMatrix4x4 vMatrix;
-
-		shaderProgram.bind();
-		shaderProgram.setUniformValue("mvpMatrix", pMatrix * vMatrix * mMatrix);
-		shaderProgram.setUniformValue("color", QVector4D(0.5, 0, 0, 1));
-		shaderProgram.setAttributeArray("vertex", vertices.constData());
-		shaderProgram.enableAttributeArray("vertex");
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		shaderProgram.disableAttributeArray("vertex");
-		shaderProgram.release();
-
-	}else{*/
+{	
+	if (fileLoaded){
+		volume->rotate(.1f);
+		data = volume->rayCast();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		float* pixel = &data[0];
 		glDrawPixels(640, 480, GL_LUMINANCE, GL_FLOAT, pixel);
@@ -67,4 +55,9 @@ void OGLWidget::resizeGL(int w, int h)
 	pMatrix.setToIdentity();
 	pMatrix.perspective(60.f, (float) w / (float) h, .2f, 10.f);
 	glViewport(0, 0, w, h);
+}
+
+void OGLWidget::setVolume(Volume* v)
+{
+	this->volume = v;
 }

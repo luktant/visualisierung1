@@ -116,7 +116,7 @@ class Volume
 		bool					searchForIntersection(vec3 p1, vec3 v, bool& firstIntersectFound, vec3& intersec1, vec3& intersec2, Axis axis, float fixPoint);
 		bool					checkIfInBB(vec3 p);
 		void					initPlane();
-
+		void					rotate(float theta);
 	private:
 
 		std::vector<Voxel>		m_Voxels;

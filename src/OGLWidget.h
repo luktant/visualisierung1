@@ -19,6 +19,7 @@
 #include <QtOpenGL>
 #include <QGLShaderProgram>
 #include <vector>
+#include "Volume.h"
 
 class OGLWidget : public QGLWidget
 {
@@ -29,8 +30,12 @@ public:
 	
 	QSize sizeHint() const;
 	bool fileLoaded;
+	bool ready;
+	Volume* volume;
 	std::vector<float> data;
 	float pixel[640*480];
+
+	void setVolume(Volume* v);
 
 protected:
 	void initializeGL();

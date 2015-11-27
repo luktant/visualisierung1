@@ -55,6 +55,7 @@ void MainWindow::openFileAction()
 
 			if (data[0] != -1){
 				success = true;
+				m_Ui->openGLWidget->setVolume(m_Volume);
 				m_Ui->openGLWidget->data = data;
 			}
 
