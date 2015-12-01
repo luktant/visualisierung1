@@ -13,13 +13,16 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFrame>
+#include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QProgressBar>
+#include <QtWidgets/QRadioButton>
 #include <QtWidgets/QWidget>
 #include "OGLWidget.h"
 
@@ -35,6 +38,16 @@ public:
     QProgressBar *progressBar;
     QFrame *line;
     OGLWidget *openGLWidget;
+    QGroupBox *interpolationBox;
+    QRadioButton *nearestRadio;
+    QRadioButton *trilinearRadio;
+    QGroupBox *transformationBox;
+    QDoubleSpinBox *rotationSpeed;
+    QLabel *label;
+    QRadioButton *xaxis;
+    QRadioButton *yaxis;
+    QRadioButton *zaxis;
+    QLabel *label_2;
     QMenuBar *menubar;
     QMenu *menuFile;
 
@@ -43,7 +56,7 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
         MainWindow->setWindowModality(Qt::ApplicationModal);
-        MainWindow->resize(1000, 700);
+        MainWindow->resize(821, 564);
         actionOpen = new QAction(MainWindow);
         actionOpen->setObjectName(QStringLiteral("actionOpen"));
         actionClose = new QAction(MainWindow);
@@ -56,7 +69,7 @@ public:
         progressBar = new QProgressBar(centralwidget);
         progressBar->setObjectName(QStringLiteral("progressBar"));
         progressBar->setEnabled(false);
-        progressBar->setGeometry(QRect(787, 20, 201, 23));
+        progressBar->setGeometry(QRect(610, 20, 201, 23));
         progressBar->setValue(0);
         progressBar->setTextVisible(false);
         line = new QFrame(centralwidget);
@@ -66,11 +79,45 @@ public:
         line->setFrameShadow(QFrame::Sunken);
         openGLWidget = new OGLWidget(centralwidget);
         openGLWidget->setObjectName(QStringLiteral("openGLWidget"));
-        openGLWidget->setGeometry(QRect(-1, 59, 1001, 621));
+        openGLWidget->setGeometry(QRect(0, 60, 640, 480));
+        interpolationBox = new QGroupBox(centralwidget);
+        interpolationBox->setObjectName(QStringLiteral("interpolationBox"));
+        interpolationBox->setGeometry(QRect(650, 70, 161, 81));
+        nearestRadio = new QRadioButton(interpolationBox);
+        nearestRadio->setObjectName(QStringLiteral("nearestRadio"));
+        nearestRadio->setGeometry(QRect(20, 20, 131, 17));
+        nearestRadio->setChecked(false);
+        trilinearRadio = new QRadioButton(interpolationBox);
+        trilinearRadio->setObjectName(QStringLiteral("trilinearRadio"));
+        trilinearRadio->setGeometry(QRect(20, 50, 111, 17));
+        trilinearRadio->setChecked(true);
+        transformationBox = new QGroupBox(centralwidget);
+        transformationBox->setObjectName(QStringLiteral("transformationBox"));
+        transformationBox->setGeometry(QRect(650, 160, 161, 151));
+        rotationSpeed = new QDoubleSpinBox(transformationBox);
+        rotationSpeed->setObjectName(QStringLiteral("rotationSpeed"));
+        rotationSpeed->setGeometry(QRect(10, 30, 62, 22));
+        rotationSpeed->setSingleStep(0.1);
+        label = new QLabel(transformationBox);
+        label->setObjectName(QStringLiteral("label"));
+        label->setGeometry(QRect(80, 30, 81, 20));
+        xaxis = new QRadioButton(transformationBox);
+        xaxis->setObjectName(QStringLiteral("xaxis"));
+        xaxis->setGeometry(QRect(10, 80, 82, 17));
+        yaxis = new QRadioButton(transformationBox);
+        yaxis->setObjectName(QStringLiteral("yaxis"));
+        yaxis->setGeometry(QRect(10, 100, 82, 17));
+        yaxis->setChecked(true);
+        zaxis = new QRadioButton(transformationBox);
+        zaxis->setObjectName(QStringLiteral("zaxis"));
+        zaxis->setGeometry(QRect(10, 120, 82, 17));
+        label_2 = new QLabel(transformationBox);
+        label_2->setObjectName(QStringLiteral("label_2"));
+        label_2->setGeometry(QRect(10, 60, 111, 16));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QStringLiteral("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1000, 21));
+        menubar->setGeometry(QRect(0, 0, 821, 21));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         MainWindow->setMenuBar(menubar);
@@ -91,6 +138,15 @@ public:
         actionOpen->setText(QApplication::translate("MainWindow", "Open ...", 0));
         actionClose->setText(QApplication::translate("MainWindow", "Close", 0));
         labelTop->setText(QApplication::translate("MainWindow", "No data loaded", 0));
+        interpolationBox->setTitle(QApplication::translate("MainWindow", "Interpolation:", 0));
+        nearestRadio->setText(QApplication::translate("MainWindow", "Nearest Neighbour", 0));
+        trilinearRadio->setText(QApplication::translate("MainWindow", "Trilinear", 0));
+        transformationBox->setTitle(QApplication::translate("MainWindow", "Transformation Settings:", 0));
+        label->setText(QApplication::translate("MainWindow", "Rotation Speed", 0));
+        xaxis->setText(QApplication::translate("MainWindow", "X", 0));
+        yaxis->setText(QApplication::translate("MainWindow", "Y", 0));
+        zaxis->setText(QApplication::translate("MainWindow", "Z", 0));
+        label_2->setText(QApplication::translate("MainWindow", "Rotatation Axis", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
     } // retranslateUi
 

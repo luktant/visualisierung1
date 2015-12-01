@@ -31,11 +31,13 @@ class MainWindow : public QMainWindow
 
 	
 	protected slots :
-
 		void								 openFileAction();
 		void								 closeAction();
-		
 
+	public slots:
+		void								 interpolationChanged();
+		void								 rotationChanged();
+		void								 setRotationSpeed(double s);
 	private:
 
 		// USER INTERFACE ELEMENTS

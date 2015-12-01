@@ -3,7 +3,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include <math.h>
+#include <glm.hpp>
+#include <gtx/string_cast.hpp>
+#include <gtc/matrix_transform.hpp>
 #include <QProgressBar>
 
 
@@ -71,15 +74,15 @@ struct vec3{
 class Plane
 {
 public:
-	vec3					p1;
-	vec3					p2;
-	vec3					p3;
-	vec3					p4;
-	vec3					middle;
-	vec3					pivot;
-	vec3					v;
-	vec3					x;
-	vec3					y;
+	glm::vec3					p1;
+	glm::vec3					p2;
+	glm::vec3					p3;
+	glm::vec3					p4;
+	glm::vec3					middle;
+	glm::vec3					pivot;
+	glm::vec3					v;
+	glm::vec3					x;
+	glm::vec3					y;
 };
 
 
@@ -108,13 +111,15 @@ class Volume
 
 		const int				size() const;
 		enum					Axis { X, Y, Z };
+		bool					trilinear;
 
+		Axis					rAxis;
 		bool					loadFromFile(QString filename, QProgressBar* progressBar);
 		std::vector<float>		processVolume(QString filename, QProgressBar* progressBar);
 		std::vector<float>		rayCast();
-		bool					lineIntersection(vec3 p1, vec3 p2, vec3 v, vec3& intersec1, vec3& intersec2);
-		bool					searchForIntersection(vec3 p1, vec3 v, bool& firstIntersectFound, vec3& intersec1, vec3& intersec2, Axis axis, float fixPoint);
-		bool					checkIfInBB(vec3 p);
+		bool					lineIntersection(glm::vec3 p1, glm::vec3 p2, glm::vec3 v, glm::vec3& intersec1, glm::vec3& intersec2);
+		bool					searchForIntersection(glm::vec3 p1, glm::vec3 v, bool& firstIntersectFound, glm::vec3& intersec1, glm::vec3& intersec2, Axis axis, float fixPoint);
+		bool					checkIfInBB(glm::vec3 p);
 		void					initPlane();
 		void					rotate(float theta);
 	private:
@@ -128,5 +133,5 @@ class Volume
 		bool					start = true;
 
 		float averageIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start);
-		float maxIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start);
+		float interpolate(float x_start, float y_start, float z_start);
 };

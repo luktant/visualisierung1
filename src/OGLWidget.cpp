@@ -6,7 +6,11 @@ OGLWidget::OGLWidget(QWidget *parent) :
 	fileLoaded = false;
 	QTimer *timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-	timer->start(50);
+	width = 640;
+	heigth = 480;
+	rotationSpeed = 0.f;
+	pixel[640 * 480];
+	timer->start(1);
 }
 
 OGLWidget::~OGLWidget()
@@ -16,8 +20,6 @@ OGLWidget::~OGLWidget()
 
 void OGLWidget::initializeGL()
 {
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
 	qglClearColor(QColor(Qt::black));
 	shaderProgram.addShaderFromSourceFile(QGLShader::Vertex, "shader/simple.vert");
 	shaderProgram.addShaderFromSourceFile(QGLShader::Fragment, "shader/simple.frag");
@@ -33,31 +35,36 @@ void OGLWidget::initializeGL()
 void OGLWidget::paintGL()
 {	
 	if (fileLoaded){
-		volume->rotate(.1f);
+		volume->rotate(rotationSpeed);
 		data = volume->rayCast();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		float* pixel = &data[0];
-		glDrawPixels(640, 480, GL_LUMINANCE, GL_FLOAT, pixel);
+		glDrawPixels(width, heigth, GL_LUMINANCE, GL_FLOAT, pixel);
 		shaderProgram.release();
 	}
 }
 
-QSize OGLWidget::sizeHint() const
-{
-	return QSize(640, 480);
-}
-
 void OGLWidget::resizeGL(int w, int h)
 {
-	if (h == 0){
-		h = 1;
-	}
-	pMatrix.setToIdentity();
-	pMatrix.perspective(60.f, (float) w / (float) h, .2f, 10.f);
-	glViewport(0, 0, w, h);
+	glViewport(0, 0, (GLint)w, (GLint)h);
+	qglClearColor(QColor(Qt::black));
+	pixel[w*h];
 }
 
 void OGLWidget::setVolume(Volume* v)
 {
 	this->volume = v;
+}
+
+void OGLWidget::changeRotationAxis(RotationAxis r)
+{
+	if (r == RotationAxis::X) volume->rAxis = Volume::Axis::X;
+	else if (r == RotationAxis::Y) volume->rAxis = Volume::Axis::Y;
+	else volume->rAxis = Volume::Axis::Z;
+}
+
+void OGLWidget::changeInterpolation(Interpolation i)
+{
+	if (i == Interpolation::NEAREST){ volume->trilinear = false; std::cout << "NEAREST" << std::endl; }
+	else{ volume->trilinear = true; std::cout << "TRILINEAR" << std::endl; }
 }

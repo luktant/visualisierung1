@@ -21,6 +21,9 @@
 #include <vector>
 #include "Volume.h"
 
+enum RotationAxis{ X, Y, Z };
+enum Interpolation{NEAREST, TRILINEAR};
+
 class OGLWidget : public QGLWidget
 {
 
@@ -28,14 +31,21 @@ public:
 	OGLWidget(QWidget *parent = 0);
 	~OGLWidget();
 	
-	QSize sizeHint() const;
+	int width, heigth;
+	float rotationSpeed;
+	RotationAxis actualAxis = RotationAxis::Y;
+
 	bool fileLoaded;
 	bool ready;
+
 	Volume* volume;
+
 	std::vector<float> data;
-	float pixel[640*480];
+	float* pixel;
 
 	void setVolume(Volume* v);
+	void changeRotationAxis(RotationAxis r);
+	void changeInterpolation(Interpolation i);
 
 protected:
 	void initializeGL();

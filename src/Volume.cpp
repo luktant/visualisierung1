@@ -1,9 +1,5 @@
 #include "Volume.h"
-#include <math.h>
-#include <glm.hpp>
-#include <gtx/string_cast.hpp>
-#include <gtc/matrix_transform.hpp>
-
+#include <time.h>
 //has to be the same as in OGLWidget
 static const int PIXEL_X = 640;
 static const int PIXEL_Y = 480;
@@ -129,7 +125,7 @@ const Voxel Voxel::operator/(const float &value) const
 //-------------------------------------------------------------------------------------------------
 
 Volume::Volume()
-	: m_Width(1), m_Height(1), m_Depth(1), m_Size(0), m_Voxels(1)
+	: m_Width(1), m_Height(1), m_Depth(1), m_Size(0), m_Voxels(1), trilinear(true), rAxis(Axis::Y)
 {
 }
 
@@ -281,18 +277,12 @@ std::vector<float> Volume::rayCast(){
 	std::vector<float> out;
 	out.resize(PIXEL_X * PIXEL_Y);
 
-	//select the stepsize for frequency of taking samples
-	//with 32 each image is shown "normal"
-	//minimal values for correct visualisation: head (small and large) = 8.f, others (small and large) 32.f
-	float sample_step_size = 32.f;
-
 	//start of the ray | end of the ray | first intersection | second intersection
-	vec3 start, end, intersec1, intersec2;
+	glm::vec3 start, end, intersec1, intersec2;
 
 	//loop that runs thorugh every pixel of the plane and shoots a ray
 	for (int i = 0; i < PIXEL_Y; i++){
 		for (int j = 0; j < PIXEL_X; j++){
-		
 			//start of ray
 			start.x = p.p4.x + (p.x.x * j) + (p.y.x * i);
 			start.y = p.p4.y + (p.x.y * j) + (p.y.y * i);
@@ -305,7 +295,6 @@ std::vector<float> Volume::rayCast(){
 
 			//returns bool | if true the an intersection is found and both intersections are stored in intersec1 and intersec2
 			bool intersecting = lineIntersection(start, end, p.v, intersec1, intersec2);
-
 			float maximumIntensity = 0.f;
 
 			if (intersecting)
@@ -314,18 +303,25 @@ std::vector<float> Volume::rayCast(){
 				glm::vec3 back = glm::vec3(intersec2.x, intersec2.y, intersec2.z);
 
 				glm::vec3 direction = (back - front);
-				direction = glm::vec3(direction.x*sample_step_size / direction.z, direction.y*sample_step_size / direction.z, sample_step_size);
 
 				float value;
+				uint index;
 
 				//Maximum-Intensity-Projektion
-				while (front.z < back.z){
-					//get the voxel-value at the actual ray position and compare with the latest maximum
-					value = m_Voxels[round(front.x) + m_Width*(round(front.y) + m_Depth*round(front.z))].getValue();
-					if (value > maximumIntensity) maximumIntensity = value;
+				for (glm::vec3 step = glm::vec3(direction.x / length(direction), direction.y / length(direction), direction.z / length(direction)); front.z < back.z; front += step)
+				{
+					//nearest neighbour
+					if (!trilinear)
+					{
+						index = round(front.x) + m_Height*(round(front.y) + m_Width*round(front.z));
+						if (index >= m_Size)index = (m_Size - 1);
+						value = m_Voxels[index].getValue();
+					}
+					//trilinear interpolation
+					else value = interpolate(front.x, front.y, front.z);
 
-					//get the next position
-					front = front + direction;
+					//check if new actual value is higher
+					if (value > maximumIntensity) maximumIntensity = value;
 				}
 			}
 			out[i*PIXEL_X + j] = maximumIntensity;
@@ -335,151 +331,62 @@ std::vector<float> Volume::rayCast(){
 }
 
 void Volume::rotate(float theta)
-{
-	//rotation axis
-	glm::vec3 k = glm::vec3(0, 1, 0);
+{	
+	glm::mat3 rotationMatrix;
+	if (rAxis == Axis::X){
+		rotationMatrix = glm::mat3(1, 0, 0, 0, cos(theta), -sin(theta), 0, sin(theta), cos(theta));
+	}
+	else if (rAxis == Axis::Y){
+		rotationMatrix = glm::mat3(cos(theta), 0, sin(theta), 0, 1, 0, -sin(theta), 0, cos(theta));
+	}
+	else{
+		rotationMatrix = glm::mat3(cos(theta), -sin(theta), 0, sin(theta), cos(theta), 0, 0, 0, 1);
+	}
+	p.p1 = rotationMatrix*p.p1;
+	p.p2 = rotationMatrix*p.p2;
+	p.p3 = rotationMatrix*p.p3;
+	p.p4 = rotationMatrix*p.p4;
+	p.middle = rotationMatrix*p.middle;
+	p.pivot = rotationMatrix*p.pivot;
+	p.v = rotationMatrix*p.v;
+	p.x = rotationMatrix*p.x;
+	p.y = rotationMatrix*p.y;
+}
+
+float Volume::interpolate(float x_start, float y_start, float z_start){
+
+	float x_f = floor(x_start); float x_c = ceil(x_start);
+	float y_f = floor(y_start); float y_c = ceil(y_start);
+	float z_f = floor(z_start); float z_c = ceil(z_start);
+
+	if (x_f >= m_Height)x_f--; if (x_c >= m_Height)x_c--;
+	if (y_f >= m_Width)y_f--; if (y_c >= m_Width)y_c--;
+	if (z_f >= m_Depth)z_f--; if (z_c >= m_Depth)z_c--;
 	
-	glm::vec3 helper = glm::vec3(p.middle.x, p.middle.y, p.middle.z);
-	glm::vec3 rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));	
-	p.middle.x = rotated.x;
-	p.middle.y = rotated.y;
-	p.middle.z = rotated.z;
+	float s000 = m_Voxels[x_f + m_Height*(y_f + m_Width* z_f)].getValue();
+	float s001 = m_Voxels[x_f + m_Height*(y_f + m_Width* z_c)].getValue();
+	float s010 = m_Voxels[x_f + m_Height*(y_c + m_Width* z_f)].getValue();
+	float s011 = m_Voxels[x_f + m_Height*(y_c + m_Width* z_c)].getValue();
+	float s100 = m_Voxels[x_c + m_Height*(y_f + m_Width* z_f)].getValue();
+	float s101 = m_Voxels[x_c + m_Height*(y_f + m_Width* z_c)].getValue();
+	float s110 = m_Voxels[x_c + m_Height*(y_c + m_Width* z_f)].getValue();
+	float s111 = m_Voxels[x_c + m_Height*(y_c + m_Width* z_c)].getValue();
 
-	helper = glm::vec3(p.p1.x, p.p1.y, p.p1.z);
-	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
-	p.p1.x = rotated.x;
-	p.p1.y = rotated.y;
-	p.p1.z = rotated.z;
-
-	helper = glm::vec3(p.p2.x, p.p2.y, p.p2.z);
-	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
-	p.p2.x = rotated.x;
-	p.p2.y = rotated.y;
-	p.p2.z = rotated.z;
-
-	helper = glm::vec3(p.p3.x, p.p3.y, p.p3.z);
-	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
-	p.p3.x = rotated.x;
-	p.p3.y = rotated.y;
-	p.p3.z = rotated.z;
-
-	helper = glm::vec3(p.p4.x, p.p4.y, p.p4.z);
-	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
-	p.p4.x = rotated.x;
-	p.p4.y = rotated.y;
-	p.p4.z = rotated.z;
-
-	helper = glm::vec3(p.x.x, p.x.y, p.x.z);
-	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
-	p.x.x = rotated.x;
-	p.x.y = rotated.y;
-	p.x.z = rotated.z;
-
-	helper = glm::vec3(p.y.x, p.y.y, p.y.z);
-	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
-	p.y.x = rotated.x;
-	p.y.y = rotated.y;
-	p.y.z = rotated.z;
-
-	helper = glm::vec3(p.v.x, p.v.y, p.v.z);
-	rotated = helper*cos(theta) + (glm::cross(k, helper)*sin(theta)) + k*(k*helper)*(1 - cos(theta));
-	p.v.x = rotated.x;
-	p.v.y = rotated.y;
-	p.v.z = rotated.z;
+	x_start = x_start - (int)x_start;
+	y_start = y_start - (int)y_start;
+	z_start = z_start - (int)z_start;
+	
+	return (1 - x_start)*(1 - y_start)*(1 - z_start)*s000 +
+		x_start*(1 - y_start)*(1 - z_start)*s100 +
+		(1 - x_start)*y_start*(1 - z_start)*s010 +
+		x_start*y_start*(1 - z_start)*s110 +
+		(1 - x_start)*(1 - y_start)*z_start*s001 +
+		x_start*(1 - y_start)*z_start*s101 +
+		(1 - x_start)*y_start*z_start*s011 +
+		x_start*y_start*z_start*s111;
 }
 
-float Volume::averageIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start)
-{
-	//so far not in use, creates a smudged image (obviously)
-	float intensities = 0;
-	int norm = 0;
-	//Lower-left
-	if (x_start>0 && y_start>0) {
-		intensities += m_Voxels[(x_start - 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
-		norm++;
-	}
-	//Lower-center
-	if (y_start>0) {
-		intensities += m_Voxels[x_start + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
-		norm++;
-	}
-	//Lower-right
-	if (x_start<m_Width && y_start>0) {
-		intensities += m_Voxels[(x_start + 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
-		norm++;
-	}
-	//Center-left
-	if (x_start>0) {
-		intensities += m_Voxels[(x_start - 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue();
-		norm++;
-	}
-	//Center
-	intensities += m_Voxels[x_start + m_Width*(y_start + m_Depth*round(z_start))].getValue();
-	norm++;
-	//Center-right
-	if (x_start<m_Width) {
-		intensities += m_Voxels[(x_start + 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue();
-		norm++;
-	}
-	//Upper-left
-	if (x_start > 0 && y_start<m_Height) {
-		intensities += m_Voxels[(x_start - 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
-		norm++;
-	}
-	//Upper-center
-	if (y_start<m_Height) {
-		intensities += m_Voxels[x_start + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
-		norm++;
-	}
-	//Upper-right
-	if (x_start<m_Width && y_start<m_Height) {
-		intensities += m_Voxels[(x_start + 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
-		norm++;
-	}
-	return intensities/norm;
-}
-
-float Volume::maxIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start){
-	//so far not in use, heavy bleeding (also obviously)
-	float maximumIntensity = INT_MIN;
-	//Lower-left
-	if (x_start>0 && y_start>0) {
-		if (m_Voxels[(x_start - 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start - 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
-	}
-	//Lower-center
-	if (y_start>0) {
-		if (m_Voxels[x_start + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[x_start + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
-	}
-	//Lower-right
-	if (x_start<m_Width && y_start>0) {
-		if (m_Voxels[(x_start + 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start + 1) + m_Width*((y_start - 1) + m_Depth*round(z_start))].getValue();
-	}
-	//Center-left
-	if (x_start>0) {
-		if (m_Voxels[(x_start - 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start - 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue();
-	}
-	//Center
-	if (m_Voxels[x_start + m_Width*(y_start + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[x_start + m_Width*(y_start + m_Depth*round(z_start))].getValue();
-	//Center-right
-	if (x_start<m_Width) {
-		if (m_Voxels[(x_start + 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start + 1) + m_Width*(y_start + m_Depth*round(z_start))].getValue();
-	}
-	//Upper-left
-	if (x_start > 0 && y_start<m_Height) {
-		if (m_Voxels[(x_start - 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start - 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
-	}
-	//Upper-center
-	if (y_start<m_Height) {
-		if (m_Voxels[x_start + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[x_start + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
-	}
-	//Upper-right
-	if (x_start<m_Width && y_start<m_Height) {
-		if (m_Voxels[(x_start + 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue() > maximumIntensity)maximumIntensity = m_Voxels[(x_start + 1) + m_Width*((y_start + 1) + m_Depth*round(z_start))].getValue();
-	}
-	return maximumIntensity;
-}
-
-bool Volume::lineIntersection(vec3 p1, vec3 p2, vec3 v, vec3& intersec1, vec3& intersec2){
+bool Volume::lineIntersection(glm::vec3 p1, glm::vec3 p2, glm::vec3 v, glm::vec3& intersec1, glm::vec3& intersec2){
 	
 	//discard rays that aren't in the area
 	if (p1.x < 0 && p2.x < 0) return false;
@@ -492,8 +399,7 @@ bool Volume::lineIntersection(vec3 p1, vec3 p2, vec3 v, vec3& intersec1, vec3& i
 	if (p1.z > m_Depth && p2.z > m_Depth) return false;
 
 	bool firstIntersectFound = false;
-	vec3 temp;
-
+	
 	// check if parralel
 	if (v.x == 0){
 		if (v.y != 0 && v.z != 0){
@@ -571,28 +477,22 @@ bool Volume::lineIntersection(vec3 p1, vec3 p2, vec3 v, vec3& intersec1, vec3& i
 	return false;
 }
 
-bool Volume::searchForIntersection(vec3 p1, vec3 v, bool& firstIntersectFound, vec3& intersec1, vec3& intersec2, Axis axis, float fixPoint){
-	vec3 temp;
+bool Volume::searchForIntersection(glm::vec3 p1, glm::vec3 v, bool& firstIntersectFound, glm::vec3& intersec1, glm::vec3& intersec2, Axis axis, float fixPoint){
+	glm::vec3 temp;
 
 	if (axis == X){
 		float s = (fixPoint - p1.x) / v.x;
-		temp.x = fixPoint;
-		temp.y = p1.y + s * v.y;
-		temp.z = p1.z + s * v.z;
+		temp = glm::vec3(fixPoint, p1.y + s * v.y, p1.z + s * v.z);
 	}
 
 	if (axis == Y){
 		float s = (fixPoint - p1.y) / v.y;
-		temp.x = p1.x + s * v.x;
-		temp.y = fixPoint;
-		temp.z = p1.z + s * v.z;
+		temp = glm::vec3(p1.x + s * v.x, fixPoint, p1.z + s * v.z);
 	}
 
 	if (axis == Z){
 		float s = (fixPoint - p1.z) / v.z;
-		temp.x = p1.x + s * v.x;
-		temp.y = p1.y + s * v.y;
-		temp.z = fixPoint;
+		temp = glm::vec3(p1.x + s * v.x, p1.y + s * v.y, fixPoint);
 	}
 
 	if (checkIfInBB(temp)){
@@ -610,54 +510,31 @@ bool Volume::searchForIntersection(vec3 p1, vec3 v, bool& firstIntersectFound, v
 	return false;
 }
 
-bool Volume::checkIfInBB(vec3 p){
+bool Volume::checkIfInBB(glm::vec3 p){
 	if (p.x < 0 || p.x > m_Width || p.y < 0 || p.y > m_Height || p.z < 0 || p.z > m_Depth) return false;
 	return true;
 }
 
 void Volume::initPlane(){
-	p.pivot.x = m_Width / 2;
-	p.pivot.y = m_Height / 2;
-	p.pivot.z = m_Depth / 2;
+	p.pivot = glm::vec3(m_Width / 2, m_Height / 2, m_Depth / 2);
 
-	p.p1.x = p.pivot.x - PIXEL_X / 2;
-	p.p1.y = p.pivot.y - PIXEL_Y / 2;
-	p.p1.z = -1000;
+	p.p1 = glm::vec3(p.pivot.x - PIXEL_X / 2, p.pivot.y - PIXEL_Y / 2, -1000);
 
-	p.p2.x = p.pivot.x + PIXEL_X / 2;
-	p.p2.y = p.pivot.y - PIXEL_Y / 2;
-	p.p2.z = -1000;
+	p.p2 = glm::vec3(p.pivot.x + PIXEL_X / 2, p.pivot.y - PIXEL_Y / 2, -1000);
 
-	p.p3.x = p.pivot.x + PIXEL_X / 2;
-	p.p3.y = p.pivot.y + PIXEL_Y / 2;
-	p.p3.z = -1000;
+	p.p3 = glm::vec3(p.pivot.x + PIXEL_X / 2, p.pivot.y + PIXEL_Y / 2, -1000);
 
-	p.p4.x = p.pivot.x - PIXEL_X / 2;
-	p.p4.y = p.pivot.y + PIXEL_Y / 2;
-	p.p4.z = -1000;
+	p.p4 = glm::vec3(p.pivot.x - PIXEL_X / 2, p.pivot.y + PIXEL_Y / 2, -1000);
 
-	p.middle.x = p.pivot.x;
-	p.middle.y = p.pivot.y;
-	p.middle.z = -1000;
+	p.middle = glm::vec3(p.pivot.x, p.pivot.y, -1000);
 
-	p.v.x = 0;
-	p.v.y = 0;
-	p.v.z = -p.middle.z + std::max(m_Width, std::max(m_Height, m_Depth));
+	p.v = glm::vec3(0, 0, -p.middle.z + std::max(m_Width, std::max(m_Height, m_Depth)));
+	
+	p.x = p.p3 - p.p4;
 
-	p.x.x = p.p3.x - p.p4.x;
-	p.x.y = p.p3.y - p.p4.y;
-	p.x.z = p.p3.z - p.p4.z;
-
-	p.y.x = p.p1.x - p.p4.x;
-	p.y.y = p.p1.y - p.p4.y;
-	p.y.z = p.p1.z - p.p4.z;
+	p.y = p.p1 - p.p4;
 
 	//normalize
-	p.x.x = p.x.x / PIXEL_X;
-	p.x.y = p.x.y / PIXEL_X;
-	p.x.z = p.x.z / PIXEL_X;
-
-	p.y.x = p.y.x / PIXEL_Y;
-	p.y.y = p.y.y / PIXEL_Y;
-	p.y.z = p.y.z / PIXEL_Y;
+	p.x /= PIXEL_X;
+	p.y /= PIXEL_Y;
 }

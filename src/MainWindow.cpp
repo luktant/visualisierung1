@@ -13,6 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 	connect(m_Ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFileAction()));
 	connect(m_Ui->actionClose, SIGNAL(triggered()), this, SLOT(closeAction()));
+	connect(m_Ui->nearestRadio, SIGNAL(toggled(bool)), this, SLOT(interpolationChanged()));
+	connect(m_Ui->trilinearRadio, SIGNAL(toggled(bool)), this, SLOT(interpolationChanged()));
+	connect(m_Ui->xaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
+	connect(m_Ui->yaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
+	connect(m_Ui->zaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
+	connect(m_Ui->rotationSpeed, SIGNAL(valueChanged(double)), this, SLOT(setRotationSpeed(double)));
 }
 
 MainWindow::~MainWindow()
@@ -106,4 +112,17 @@ void MainWindow::openFileAction()
 void MainWindow::closeAction()
 {
 	close();
+}
+
+void MainWindow::interpolationChanged(){
+	if (m_Ui->nearestRadio->isChecked()) m_Ui->openGLWidget->changeInterpolation(Interpolation::NEAREST);
+	else m_Ui->openGLWidget->changeInterpolation(Interpolation::TRILINEAR);
+}
+void MainWindow::rotationChanged(){
+	if (m_Ui->xaxis->isChecked()) m_Ui->openGLWidget->changeRotationAxis(RotationAxis::X);
+	else if (m_Ui->yaxis->isChecked()) m_Ui->openGLWidget->changeRotationAxis(RotationAxis::Y);
+	else m_Ui->openGLWidget->changeRotationAxis(RotationAxis::Z);
+}
+void MainWindow::setRotationSpeed(double s){
+	m_Ui->openGLWidget->rotationSpeed = s;
 }

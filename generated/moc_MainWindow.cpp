@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[4];
-    char stringdata0[39];
+    QByteArrayData data[8];
+    char stringdata0[95];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,10 +32,16 @@ static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
 QT_MOC_LITERAL(1, 11, 14), // "openFileAction"
 QT_MOC_LITERAL(2, 26, 0), // ""
-QT_MOC_LITERAL(3, 27, 11) // "closeAction"
+QT_MOC_LITERAL(3, 27, 11), // "closeAction"
+QT_MOC_LITERAL(4, 39, 20), // "interpolationChanged"
+QT_MOC_LITERAL(5, 60, 15), // "rotationChanged"
+QT_MOC_LITERAL(6, 76, 16), // "setRotationSpeed"
+QT_MOC_LITERAL(7, 93, 1) // "s"
 
     },
-    "MainWindow\0openFileAction\0\0closeAction"
+    "MainWindow\0openFileAction\0\0closeAction\0"
+    "interpolationChanged\0rotationChanged\0"
+    "setRotationSpeed\0s"
 };
 #undef QT_MOC_LITERAL
 
@@ -45,7 +51,7 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -53,12 +59,18 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   24,    2, 0x09 /* Protected */,
-       3,    0,   25,    2, 0x09 /* Protected */,
+       1,    0,   39,    2, 0x09 /* Protected */,
+       3,    0,   40,    2, 0x09 /* Protected */,
+       4,    0,   41,    2, 0x0a /* Public */,
+       5,    0,   42,    2, 0x0a /* Public */,
+       6,    1,   43,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Double,    7,
 
        0        // eod
 };
@@ -71,10 +83,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->openFileAction(); break;
         case 1: _t->closeAction(); break;
+        case 2: _t->interpolationChanged(); break;
+        case 3: _t->rotationChanged(); break;
+        case 4: _t->setRotationSpeed((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObject MainWindow::staticMetaObject = {
@@ -102,13 +116,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 5;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 5)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 2;
+        _id -= 5;
     }
     return _id;
 }
