@@ -104,6 +104,14 @@ void MainWindow::openFileAction()
 
 		if (success)
 		{
+			m_Ui->nearestRadio->setCheckable(true);
+			m_Ui->nearestRadio->setChecked(true);
+			m_Ui->trilinearRadio->setCheckable(true);
+			m_Ui->xaxis->setCheckable(true);
+			m_Ui->yaxis->setCheckable(true);
+			m_Ui->yaxis->setChecked(true);
+			m_Ui->zaxis->setCheckable(true);
+			m_Ui->rotationSpeed->setDisabled(false);
 			m_Ui->openGLWidget->fileLoaded=true;
 		}
 	}

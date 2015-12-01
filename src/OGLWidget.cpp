@@ -28,8 +28,7 @@ void OGLWidget::initializeGL()
 	if (!shaderProgram.bind()){
 		qWarning() << "Couldnt bind shader program";
 		return;
-	}
-	vertices<<QVector3D(1, 0, -2) <<QVector3D(0, 1, -2) <<QVector3D(-1, 0, -2);
+	}	
 }
 
 void OGLWidget::paintGL()
@@ -65,6 +64,6 @@ void OGLWidget::changeRotationAxis(RotationAxis r)
 
 void OGLWidget::changeInterpolation(Interpolation i)
 {
-	if (i == Interpolation::NEAREST){ volume->trilinear = false; std::cout << "NEAREST" << std::endl; }
-	else{ volume->trilinear = true; std::cout << "TRILINEAR" << std::endl; }
+	if (i == Interpolation::NEAREST) volume->trilinear = false;
+	else volume->trilinear = true;
 }
