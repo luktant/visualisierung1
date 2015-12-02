@@ -342,12 +342,13 @@ void Volume::rotate(float theta)
 	else{
 		rotationMatrix = glm::mat3(cos(theta), -sin(theta), 0, sin(theta), cos(theta), 0, 0, 0, 1);
 	}
-	p.p1 = rotationMatrix*p.p1;
-	p.p2 = rotationMatrix*p.p2;
-	p.p3 = rotationMatrix*p.p3;
-	p.p4 = rotationMatrix*p.p4;
-	p.middle = rotationMatrix*p.middle;
-	p.pivot = rotationMatrix*p.pivot;
+
+	p.p1 = p.pivot + rotationMatrix * (p.p1 - p.pivot);
+	p.p2 = p.pivot + rotationMatrix * (p.p2 - p.pivot);
+	p.p3 = p.pivot + rotationMatrix * (p.p3 - p.pivot);
+	p.p4 = p.pivot + rotationMatrix * (p.p4 - p.pivot);
+	p.middle = p.pivot + rotationMatrix * (p.middle - p.pivot);
+
 	p.v = rotationMatrix*p.v;
 	p.x = rotationMatrix*p.x;
 	p.y = rotationMatrix*p.y;
