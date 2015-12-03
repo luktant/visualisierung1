@@ -299,6 +299,12 @@ std::vector<float> Volume::rayCast(){
 
 			if (intersecting)
 			{
+				if (distance(start, intersec1) > distance(start, intersec2)){
+					glm::vec3 temp = intersec1;
+					intersec1 = intersec2;
+					intersec2 = temp;
+				}
+
 				glm::vec3 front = glm::vec3(intersec1.x, intersec1.y, intersec1.z);
 				glm::vec3 back = glm::vec3(intersec2.x, intersec2.y, intersec2.z);
 
