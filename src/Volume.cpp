@@ -305,8 +305,15 @@ std::vector<float> Volume::rayCast(){
 					intersec2 = temp;
 				}
 
+				if (intersec1.z > intersec2.z){
+					glm::vec3 temp = intersec1;
+					intersec1 = intersec2;
+					intersec2 = temp;
+				}
+
 				glm::vec3 front = glm::vec3(intersec1.x, intersec1.y, intersec1.z);
 				glm::vec3 back = glm::vec3(intersec2.x, intersec2.y, intersec2.z);
+
 
 				glm::vec3 direction = (back - front);
 
@@ -314,7 +321,9 @@ std::vector<float> Volume::rayCast(){
 				uint index;
 
 				//Maximum-Intensity-Projektion
-				for (glm::vec3 step = glm::vec3(direction.x / length(direction), direction.y / length(direction), direction.z / length(direction)); front.z < back.z; front += step)
+				glm::vec3 step = glm::vec3(direction.x / length(direction), direction.y / length(direction), direction.z / length(direction));
+
+				for (step; front.z < back.z; front += step)
 				{
 					//nearest neighbour
 					if (!trilinear)
