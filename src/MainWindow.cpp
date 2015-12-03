@@ -15,6 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_Ui->actionClose, SIGNAL(triggered()), this, SLOT(closeAction()));
 	connect(m_Ui->nearestRadio, SIGNAL(toggled(bool)), this, SLOT(interpolationChanged()));
 	connect(m_Ui->trilinearRadio, SIGNAL(toggled(bool)), this, SLOT(interpolationChanged()));
+	connect(m_Ui->MIPRadio, SIGNAL(toggled(bool)), this, SLOT(renderingChanged()));
+	connect(m_Ui->firstHitRadio, SIGNAL(toggled(bool)), this, SLOT(renderingChanged()));
 	connect(m_Ui->xaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
 	connect(m_Ui->yaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
 	connect(m_Ui->zaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
@@ -107,6 +109,9 @@ void MainWindow::openFileAction()
 			m_Ui->nearestRadio->setCheckable(true);
 			m_Ui->nearestRadio->setChecked(true);
 			m_Ui->trilinearRadio->setCheckable(true);
+			m_Ui->MIPRadio->setCheckable(true);
+			m_Ui->MIPRadio->setChecked(true);
+			m_Ui->firstHitRadio->setCheckable(true);
 			m_Ui->xaxis->setCheckable(true);
 			m_Ui->yaxis->setCheckable(true);
 			m_Ui->yaxis->setChecked(true);
@@ -125,6 +130,10 @@ void MainWindow::closeAction()
 void MainWindow::interpolationChanged(){
 	if (m_Ui->nearestRadio->isChecked()) m_Ui->openGLWidget->changeInterpolation(Interpolation::NEAREST);
 	else m_Ui->openGLWidget->changeInterpolation(Interpolation::TRILINEAR);
+}
+void MainWindow::renderingChanged(){
+	if (m_Ui->MIPRadio->isChecked()) m_Ui->openGLWidget->changeRendering(Rendering::MIP);
+	else m_Ui->openGLWidget->changeRendering(Rendering::FIRSTHIT);
 }
 void MainWindow::rotationChanged(){
 	if (m_Ui->xaxis->isChecked()) m_Ui->openGLWidget->changeRotationAxis(RotationAxis::X);

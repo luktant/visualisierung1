@@ -112,8 +112,10 @@ class Volume
 		const int				size() const;
 		enum					Axis { X, Y, Z };
 		bool					trilinear;
+		enum					Rendering {MIP, FIRSTHIT};
 
 		Axis					rAxis;
+		Rendering				rendering;
 		bool					loadFromFile(QString filename, QProgressBar* progressBar);
 		std::vector<float>		processVolume(QString filename, QProgressBar* progressBar);
 		std::vector<float>		rayCast();

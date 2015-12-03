@@ -23,6 +23,7 @@
 
 enum RotationAxis{ X, Y, Z };
 enum Interpolation{NEAREST, TRILINEAR};
+enum Rendering{ MIP, FIRSTHIT };
 
 class OGLWidget : public QGLWidget
 {
@@ -46,6 +47,7 @@ public:
 	void setVolume(Volume* v);
 	void changeRotationAxis(RotationAxis r);
 	void changeInterpolation(Interpolation i);
+	void changeRendering(Rendering r);
 
 protected:
 	void initializeGL();

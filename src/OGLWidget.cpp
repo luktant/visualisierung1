@@ -67,3 +67,9 @@ void OGLWidget::changeInterpolation(Interpolation i)
 	if (i == Interpolation::NEAREST) volume->trilinear = false;
 	else volume->trilinear = true;
 }
+
+void OGLWidget::changeRendering(Rendering r)
+{
+	if (r == Rendering::MIP) volume->rendering = Volume::Rendering::MIP;
+	else volume->rendering = Volume::Rendering::FIRSTHIT;
+}

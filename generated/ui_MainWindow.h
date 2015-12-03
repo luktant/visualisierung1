@@ -41,6 +41,9 @@ public:
     QGroupBox *interpolationBox;
     QRadioButton *nearestRadio;
     QRadioButton *trilinearRadio;
+	QGroupBox *renderingBox;
+	QRadioButton *MIPRadio;
+	QRadioButton *firstHitRadio;
     QGroupBox *transformationBox;
     QDoubleSpinBox *rotationSpeed;
     QLabel *label;
@@ -92,10 +95,23 @@ public:
         trilinearRadio->setObjectName(QStringLiteral("trilinearRadio"));
         trilinearRadio->setGeometry(QRect(20, 50, 111, 17));
 		trilinearRadio->setCheckable(false);
+		//trilinearRadio->setChecked(true
+		renderingBox = new QGroupBox(centralwidget);
+		renderingBox->setObjectName(QStringLiteral("interpolationBox"));
+		renderingBox->setGeometry(QRect(650, 150, 161, 81));
+		MIPRadio = new QRadioButton(renderingBox);
+		MIPRadio->setObjectName(QStringLiteral("nearestRadio"));
+		MIPRadio->setGeometry(QRect(20, 20, 131, 17));
+		MIPRadio->setCheckable(false);
+		//nearestRadio->setChecked(false);
+		firstHitRadio = new QRadioButton(renderingBox);
+		firstHitRadio->setObjectName(QStringLiteral("trilinearRadio"));
+		firstHitRadio->setGeometry(QRect(20, 50, 111, 17));
+		firstHitRadio->setCheckable(false);
 		//trilinearRadio->setChecked(true);
         transformationBox = new QGroupBox(centralwidget);
         transformationBox->setObjectName(QStringLiteral("transformationBox"));
-        transformationBox->setGeometry(QRect(650, 160, 161, 151));
+        transformationBox->setGeometry(QRect(650, 230, 161, 151));
         rotationSpeed = new QDoubleSpinBox(transformationBox);
         rotationSpeed->setObjectName(QStringLiteral("rotationSpeed"));
         rotationSpeed->setGeometry(QRect(10, 30, 62, 22));
@@ -147,6 +163,9 @@ public:
         interpolationBox->setTitle(QApplication::translate("MainWindow", "Interpolation:", 0));
         nearestRadio->setText(QApplication::translate("MainWindow", "Nearest Neighbour", 0));
         trilinearRadio->setText(QApplication::translate("MainWindow", "Trilinear", 0));
+		renderingBox->setTitle(QApplication::translate("MainWindow", "Rendering:", 0));
+		MIPRadio->setText(QApplication::translate("MainWindow", "Maximum Intensity Projection", 0));
+		firstHitRadio->setText(QApplication::translate("MainWindow", "First Hit", 0));
         transformationBox->setTitle(QApplication::translate("MainWindow", "Transformation Settings:", 0));
         label->setText(QApplication::translate("MainWindow", "Rotation Speed", 0));
         xaxis->setText(QApplication::translate("MainWindow", "X", 0));

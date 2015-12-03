@@ -36,6 +36,7 @@ class MainWindow : public QMainWindow
 
 	public slots:
 		void								 interpolationChanged();
+		void								 renderingChanged();
 		void								 rotationChanged();
 		void								 setRotationSpeed(double s);
 	private:

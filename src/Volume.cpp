@@ -125,7 +125,7 @@ const Voxel Voxel::operator/(const float &value) const
 //-------------------------------------------------------------------------------------------------
 
 Volume::Volume()
-	: m_Width(1), m_Height(1), m_Depth(1), m_Size(0), m_Voxels(1), trilinear(true), rAxis(Axis::Y)
+	: m_Width(1), m_Height(1), m_Depth(1), m_Size(0), m_Voxels(1), trilinear(true), rendering(Rendering::MIP), rAxis(Axis::Y)
 {
 }
 
@@ -295,7 +295,7 @@ std::vector<float> Volume::rayCast(){
 
 			//returns bool | if true the an intersection is found and both intersections are stored in intersec1 and intersec2
 			bool intersecting = lineIntersection(start, end, p.v, intersec1, intersec2);
-			float maximumIntensity = 0.f;
+			float intensity = 0.f;
 
 			if (intersecting)
 			{
@@ -335,11 +335,16 @@ std::vector<float> Volume::rayCast(){
 					//trilinear interpolation
 					else value = interpolate(front.x, front.y, front.z);
 
-					//check if new actual value is higher
-					if (value > maximumIntensity) maximumIntensity = value;
+					if (rendering == MIP){
+						//check if new actual value is higher
+						if (value > intensity) intensity = value;
+					}
+					else if (rendering == FIRSTHIT){
+						if (intensity == 0) intensity = value;
+					}
 				}
 			}
-			out[i*PIXEL_X + j] = maximumIntensity;
+			out[i*PIXEL_X + j] = intensity;
 		}
 	}
 	return out;
