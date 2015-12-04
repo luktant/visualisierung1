@@ -1,7 +1,6 @@
 #pragma once
-#ifndef OGLWIDGET_H
-#define OGLWIDGET_H
-
+#include <gl/glew.h>
+#include <GLFW/glfw3.h>
 #include <QtOpenGL/QGLWidget>
 #include <QWidget>
 #include <QtCore/QVariant>
@@ -18,6 +17,7 @@
 #include <QtWidgets/QWidget>
 #include <QtOpenGL>
 #include <QGLShaderProgram>
+#include <QOpenGLTexture>
 #include <vector>
 #include "Volume.h"
 
@@ -38,6 +38,7 @@ public:
 
 	bool fileLoaded;
 	bool ready;
+	bool useGPU;
 
 	Volume* volume;
 
@@ -48,6 +49,8 @@ public:
 	void changeRotationAxis(RotationAxis r);
 	void changeInterpolation(Interpolation i);
 	void changeRendering(Rendering r);
+	void gpuRayCast();
+	void initializeBuffers();
 
 protected:
 	void initializeGL();
@@ -55,8 +58,10 @@ protected:
 	void paintGL();
 
 private:
+	GLuint volumeBuffer;
+	GLuint VAO;
+
 	QMatrix4x4 pMatrix;
-	QGLShaderProgram shaderProgram;
+	QGLShaderProgram raycastingShader;
 	QVector<QVector3D> vertices;
 };
-#endif

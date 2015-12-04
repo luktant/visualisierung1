@@ -109,6 +109,8 @@ class Volume
 		const int				height() const;
 		const int				depth() const;
 
+		int						m_Size;
+
 		const int				size() const;
 		enum					Axis { X, Y, Z };
 		bool					trilinear;
@@ -130,8 +132,7 @@ class Volume
 		Plane					p;
 		int						m_Width;
 		int						m_Height;
-		int						m_Depth;
-		int						m_Size;
+		int						m_Depth;		
 		bool					start = true;
 
 		float averageIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start);

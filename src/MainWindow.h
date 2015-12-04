@@ -1,17 +1,13 @@
 #pragma once
-#include <glew.h>
-#include <gl/GLU.h>
-#include <gl/GL.h>
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include "ui_MainWindow.h"
 #include "Volume.h"
 #include "VectorField.h"
 #include "MultiSet.h"
-
 #include <vector>
-
+#include <QFileDialog>
+#include <QPainter>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QLabel>
@@ -39,6 +35,7 @@ class MainWindow : public QMainWindow
 		void								 renderingChanged();
 		void								 rotationChanged();
 		void								 setRotationSpeed(double s);
+	
 	private:
 
 		// USER INTERFACE ELEMENTS

@@ -121,7 +121,7 @@
     <property name="geometry">
      <rect>
       <x>650</x>
-      <y>160</y>
+      <y>230</y>
       <width>161</width>
       <height>151</height>
      </rect>
@@ -208,6 +208,45 @@
      </property>
      <property name="text">
       <string>Rotatation Axis</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="renderingBox">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>150</y>
+      <width>161</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Rendering:</string>
+    </property>
+    <widget class="QRadioButton" name="MIPRadio">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>131</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Maximum Intensity Proj</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="firstHitRadio">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>50</y>
+       <width>111</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>First Hit</string>
      </property>
     </widget>
    </widget>

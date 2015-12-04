@@ -1,9 +1,5 @@
 #include "MainWindow.h"
 
-#include <QFileDialog>
-
-#include <QPainter>
-
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent), m_Volume(0), m_VectorField(0)
@@ -118,6 +114,7 @@ void MainWindow::openFileAction()
 			m_Ui->zaxis->setCheckable(true);
 			m_Ui->rotationSpeed->setDisabled(false);
 			m_Ui->openGLWidget->fileLoaded=true;
+			m_Ui->openGLWidget->initializeBuffers();
 		}
 	}
 }

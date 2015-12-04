@@ -340,7 +340,10 @@ std::vector<float> Volume::rayCast(){
 						if (value > intensity) intensity = value;
 					}
 					else if (rendering == FIRSTHIT){
-						if (intensity == 0) intensity = value;
+						if (value > 0){ 
+							intensity = value;
+							break; //Break on first hit
+						}
 					}
 				}
 			}
@@ -362,7 +365,6 @@ void Volume::rotate(float theta)
 	else{
 		rotationMatrix = glm::mat3(cos(theta), -sin(theta), 0, sin(theta), cos(theta), 0, 0, 0, 1);
 	}
-
 	p.p1 = p.pivot + rotationMatrix * (p.p1 - p.pivot);
 	p.p2 = p.pivot + rotationMatrix * (p.p2 - p.pivot);
 	p.p3 = p.pivot + rotationMatrix * (p.p3 - p.pivot);

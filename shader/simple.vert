@@ -9,6 +9,6 @@ out vec4 c;
 
 void main()
 {   
-    gl_Position = mvpMatrix * vertex;    
+    gl_Position = mvpMatrix * vertex;
 	c = color;
 }
