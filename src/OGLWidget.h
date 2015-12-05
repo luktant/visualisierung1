@@ -15,15 +15,16 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QWidget>
-#include <QtOpenGL>
-#include <QGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QTimer>
 #include <vector>
 #include "Volume.h"
+#include "Shader.h"
 
 enum RotationAxis{ X, Y, Z };
 enum Interpolation{NEAREST, TRILINEAR};
 enum Rendering{ MIP, FIRSTHIT };
+enum Direction{UP, DOWN, LEFT, RIGHT};
 
 class OGLWidget : public QGLWidget
 {
@@ -32,14 +33,13 @@ public:
 	OGLWidget(QWidget *parent = 0);
 	~OGLWidget();
 	
-	int width, heigth;
+	int width, height;
 	float rotationSpeed;
 	RotationAxis actualAxis = RotationAxis::Y;
 
 	bool fileLoaded;
 	bool ready;
-	bool useGPU;
-
+	bool useGPU = false;
 	Volume* volume;
 
 	std::vector<float> data;
@@ -50,7 +50,9 @@ public:
 	void changeInterpolation(Interpolation i);
 	void changeRendering(Rendering r);
 	void gpuRayCast();
-	void initializeBuffers();
+	void move(Direction d);
+	void zoom(int value);
+	void initializeShaderAndBuffer();
 
 protected:
 	void initializeGL();
@@ -58,10 +60,10 @@ protected:
 	void paintGL();
 
 private:
-	GLuint volumeBuffer;
+	GLuint positionBuffer;
+	GLuint indexBuffer;
 	GLuint VAO;
+	GLuint texid;
 
-	QMatrix4x4 pMatrix;
-	QGLShaderProgram raycastingShader;
-	QVector<QVector3D> vertices;
+	Shader* raycastingShader;
 };

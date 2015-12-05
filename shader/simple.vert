@@ -1,14 +1,11 @@
 #version 330 core
 
-uniform mat4 mvpMatrix;
-uniform vec4 color;
+in vec3 position;
 
-in vec4 vertex;
-
-out vec4 c;
+out vec3 pos;
 
 void main()
 {   
-    gl_Position = mvpMatrix * vertex;
-	c = color;
+    gl_Position = vec4(position, 1);
+	pos = position;
 }

@@ -35,6 +35,12 @@ class MainWindow : public QMainWindow
 		void								 renderingChanged();
 		void								 rotationChanged();
 		void								 setRotationSpeed(double s);
+		void								 moveUp();
+		void								 moveDown();
+		void								 moveLeft();
+		void								 moveRight();
+		void								 zoom(int newValue);							 
+		void								 useGPU(bool);
 	
 	private:
 

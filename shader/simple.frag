@@ -1,10 +1,13 @@
 #version 330 core
 
-in vec4 c;
+in vec3 pos;
 
 out vec4 fragColor;
 
+uniform sampler3D volumeData;
+
+// RAYCASTING PER FRAGMENT
 void main()
-{   
-   fragColor = c;
+{   	
+	fragColor = vec4(abs(pos), 1.0f);
 }

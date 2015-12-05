@@ -17,6 +17,12 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_Ui->yaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
 	connect(m_Ui->zaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
 	connect(m_Ui->rotationSpeed, SIGNAL(valueChanged(double)), this, SLOT(setRotationSpeed(double)));
+	connect(m_Ui->upButton, SIGNAL(pressed()), this, SLOT(moveUp()));
+	connect(m_Ui->downButton, SIGNAL(pressed()), this, SLOT(moveDown()));
+	connect(m_Ui->leftButton, SIGNAL(pressed()), this, SLOT(moveLeft()));
+	connect(m_Ui->rightButton, SIGNAL(pressed()), this, SLOT(moveRight()));
+	connect(m_Ui->gpuBox, SIGNAL(toggled(bool)), this, SLOT(useGPU(bool)));
+	connect(m_Ui->zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(zoom(int)));
 }
 
 MainWindow::~MainWindow()
@@ -114,7 +120,8 @@ void MainWindow::openFileAction()
 			m_Ui->zaxis->setCheckable(true);
 			m_Ui->rotationSpeed->setDisabled(false);
 			m_Ui->openGLWidget->fileLoaded=true;
-			m_Ui->openGLWidget->initializeBuffers();
+			m_Ui->gpuBox->setCheckable(true);
+			m_Ui->openGLWidget->initializeShaderAndBuffer();
 		}
 	}
 }
@@ -139,4 +146,22 @@ void MainWindow::rotationChanged(){
 }
 void MainWindow::setRotationSpeed(double s){
 	m_Ui->openGLWidget->rotationSpeed = s;
+}
+void MainWindow::moveUp(){
+	m_Ui->openGLWidget->move(Direction::UP);
+}
+void MainWindow::moveDown(){
+	m_Ui->openGLWidget->move(Direction::DOWN);
+}
+void MainWindow::moveLeft(){
+	m_Ui->openGLWidget->move(Direction::LEFT);
+}
+void MainWindow::moveRight(){
+	m_Ui->openGLWidget->move(Direction::RIGHT);
+}
+void MainWindow::zoom(int newValue){
+	m_Ui->openGLWidget->zoom(newValue);	
+}
+void MainWindow::useGPU(bool use){
+	m_Ui->openGLWidget->useGPU = use;
 }

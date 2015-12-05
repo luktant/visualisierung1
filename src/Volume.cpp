@@ -251,6 +251,8 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 
 	progressBar->setValue(10);
 
+	// this array will be used afterwards for GPU processing
+	volumeData = new float[m_Size];
 
 	// store volume data
 
@@ -261,6 +263,7 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 		// data values, and then 4095.0f is the maximum possible value
 		const float value = std::fmax(0.0f, std::fmin(1.0f, (float(vecData[i]) / 4095.0f)));
 		m_Voxels[i] = Voxel(value);
+		volumeData[i] = value;
 		progressBar->setValue(10 + i);
 	}
 	
@@ -374,6 +377,36 @@ void Volume::rotate(float theta)
 	p.v = rotationMatrix*p.v;
 	p.x = rotationMatrix*p.x;
 	p.y = rotationMatrix*p.y;
+	if (!backface && p.v.z < p.x.z){
+		backface = !backface;
+	}
+	else if (backface && p.v.z > p.x.z){
+		backface = !backface;
+	}
+}
+void Volume::translate(int direction)
+{
+	//THIS IS A DUMB SOLUTION, ILL CORRECT IT LATER ON.. HADNT MUCH TIME
+	switch (direction){		
+	case 0: //UP
+		if (backface && rAxis!=Axis::Y ) p.v.y -= 10;
+		else if (backface && rAxis == Axis::X)p.v.y -= 10;
+		else p.v.y += 10;
+		break;
+	case 1: //DOWN
+		if (backface && rAxis != Axis::Y) p.v.y += 10;
+		else if (backface && rAxis == Axis::X)p.v.y += 10;
+		else p.v.y -= 10;		
+		break;
+	case 2:
+		if(backface && rAxis!=Axis::X) p.v.x -= 10;
+		else p.v.x += 10;
+		break;
+	case 3: //RIGHT
+		if(backface && rAxis!=Axis::X) p.v.x += 10;
+		else p.v.x -= 10;
+		break;
+	}	
 }
 
 float Volume::interpolate(float x_start, float y_start, float z_start){

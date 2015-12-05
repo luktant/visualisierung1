@@ -110,7 +110,7 @@ class Volume
 		const int				depth() const;
 
 		int						m_Size;
-
+		float*					volumeData;
 		const int				size() const;
 		enum					Axis { X, Y, Z };
 		bool					trilinear;
@@ -126,6 +126,7 @@ class Volume
 		bool					checkIfInBB(glm::vec3 p);
 		void					initPlane();
 		void					rotate(float theta);
+		void					translate(int direction);
 	private:
 
 		std::vector<Voxel>		m_Voxels;
@@ -134,7 +135,7 @@ class Volume
 		int						m_Height;
 		int						m_Depth;		
 		bool					start = true;
-
+		bool					backface = false;
 		float averageIntensityOf9x9Neighbourhood(float x_start, float y_start, float z_start);
 		float interpolate(float x_start, float y_start, float z_start);
 };

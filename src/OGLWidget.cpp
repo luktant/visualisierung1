@@ -5,10 +5,9 @@ OGLWidget::OGLWidget(QWidget *parent) :
 {
 	fileLoaded = false;
 	QTimer *timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-	useGPU = true;
+	connect(timer, SIGNAL(timeout()), this, SLOT(update()));	
 	width = 640;
-	heigth = 480;
+	height = 480;
 	rotationSpeed = 0.f;
 	pixel[640 * 480];
 	timer->start(1);
@@ -16,88 +15,131 @@ OGLWidget::OGLWidget(QWidget *parent) :
 
 OGLWidget::~OGLWidget()
 {
-	delete pixel;
-	__glewDeleteBuffers(1, &volumeBuffer);	
-	glDeleteVertexArrays(1, &VAO);
+	delete pixel,
+	glDeleteTextures(1, &texid);
+	glDeleteBuffers(1, &VAO);
+	glDeleteBuffers(1, &positionBuffer);
+	glDeleteBuffers(1, &indexBuffer);
 }
 
 void OGLWidget::initializeGL()
-{
+{	
+	//Init GLFW
 	if (!glfwInit())
 	{
 		std::cout << "Failed to init glfw, using only CPU" << std::endl;
 		useGPU = false;
 	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	
+	//Init GLEW
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
 	{
 		std::cout << "Failed to initialize glew, using only CPU" << std::endl;
 		useGPU = false;
 	}
-	//Bugfixes..
-	__glewGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)glfwGetProcAddress("glGenVertexArrays");
-	__glewBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)glfwGetProcAddress("glBindVertexArray");
-	__glewDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)glfwGetProcAddress("glDeleteVertexArrays");
-	__glewGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)glfwGetProcAddress("glGenerateMipmap");
-	__glewGenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)glfwGetProcAddress("glGenFramebuffers");
-	__glewBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)glfwGetProcAddress("glBindFramebuffer");
-	__glewCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)glfwGetProcAddress("glCheckFramebufferStatus");
-	__glewFramebufferTexture = (PFNGLFRAMEBUFFERTEXTUREPROC)glfwGetProcAddress("glFramebufferTexture");
-
 	qglClearColor(QColor(Qt::black));
-	raycastingShader.addShaderFromSourceFile(QGLShader::Vertex, "shader/simple.vert");
-	raycastingShader.addShaderFromSourceFile(QGLShader::Fragment, "shader/simple.frag");	
-	raycastingShader.link();	
 }
 
 void OGLWidget::paintGL()
 {	
 	if (fileLoaded){
+		double t = glfwGetTime();
 		if (useGPU){
-			if (!raycastingShader.bind()){
-				qWarning() << "Couldnt bind shader program, using only CPU";
-				useGPU = false;
-				return;
-			}
-			//DRAW..
-			raycastingShader.release();
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
+			gpuRayCast();
 		}
-		else{
-			double t = glfwGetTime();
+		else{			
 			volume->rotate(rotationSpeed);
 			data = volume->rayCast();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			float* pixel = &data[0];
-			glDrawPixels(width, heigth, GL_LUMINANCE, GL_FLOAT, pixel);
-			double t1 = glfwGetTime();
-			std::cout << 1.0f/(t1 - t)<<" FPS" << std::endl;
+			glDrawPixels(width, height, GL_LUMINANCE, GL_FLOAT, pixel);			
 		}
-	}
+		double t1 = glfwGetTime();
+		if ((int)t1>(int)t) std::cout << 1.0f / (t1 - t) << " FPS" << std::endl;
+	}	
 }
 
-void OGLWidget::initializeBuffers()
-{
-	//load data to buffer
-	__glewGenBuffers(1, &volumeBuffer);
-	__glewBindBuffer(GL_ARRAY_BUFFER, volumeBuffer);	
-	__glewBufferData(GL_ARRAY_BUFFER, volume->m_Size * sizeof(float), pixel, GL_LUMINANCE);	
+void OGLWidget::initializeShaderAndBuffer(){
+	raycastingShader = new Shader("shader/simple.vert", "shader/simple.frag");
+	
+	
+	float positions[12] = {
+		-1, -1, 0,
+		-1, 1, 0,
+		1, 1, 0,
+		1, -1, 0 };
+	
+	unsigned int indices[6] = { 0, 1, 2, 0, 2, 3 };
+
+	int vertexCount = 4;
+	int indexCount = 6;
+
+	GLuint shaderHandle = raycastingShader->programHandle;
+
+	glGenBuffers(1, &positionBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+	glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), positions, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &indexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount* sizeof(unsigned int), indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	//3D texture is used to store the volumetric data for the shader
+	glGenTextures(1, &texid);
+	glBindTexture(GL_TEXTURE_3D, texid);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	//--- Not sure if this works, couldnt access volume Data so far but to use a 3D texture for the voxel data should be the best solution
+	glTexImage3D(GL_TEXTURE_3D,      // 3D texture
+		0,                  // level 0 (for mipmapping)
+		GL_LUMINANCE,       // pixel format of texture
+		volume->width(), volume->height(), volume->depth(), // texture size
+		0,                  // border size 0
+		GL_LUMINANCE,       // pixel format of data supplied
+		GL_FLOAT,			// pixel storage type of data supplied
+		volume->volumeData);// pointer to data chunk
+		
 	
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	//LOAD volume data in vao
+	glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+	GLint positionIndex = glGetAttribLocation(shaderHandle, "position");
+	glEnableVertexAttribArray(positionIndex);
+	glVertexAttribPointer(positionIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	
 	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_3D, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);	
 }
 
 void OGLWidget::gpuRayCast()
 {
+	glUseProgram(raycastingShader->programHandle);
+	glBindVertexArray(VAO);
+	//set the uniforms
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glEnable(GL_TEXTURE_3D);
 
+	// bind volume data
+	glBindTexture(GL_TEXTURE_3D, texid);
+	auto tex_location = glGetUniformLocation(raycastingShader->programHandle, "volumeData");
+	glUniform1i(tex_location, 0);
+		
+	glBindVertexArray(this->VAO);
+	
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glBindTexture(GL_TEXTURE_3D, 0);
+	glDisable(GL_TEXTURE_3D);
+	glBindVertexArray(0);
+	glUseProgram(0);	
 }
 
 void OGLWidget::resizeGL(int w, int h)
@@ -105,6 +147,35 @@ void OGLWidget::resizeGL(int w, int h)
 	glViewport(0, 0, (GLint)w, (GLint)h);
 	qglClearColor(QColor(Qt::black));
 	pixel[w*h];
+}
+
+void OGLWidget::move(Direction d){
+	switch (d){
+	case Direction::UP:
+		volume->translate(0);
+		break;
+	case Direction::DOWN:
+		volume->translate(1);
+		break;
+	case Direction::LEFT:
+		volume->translate(2);
+		break;
+	case Direction::RIGHT:
+		volume->translate(3);
+		break;
+	}
+}
+
+void OGLWidget::zoom(int value)
+{
+	if (value>0){
+		//ZOOM IN
+		std::cout << "Zoom in not implementet yet.." << std::endl;
+	}
+	else if(value<0){
+		//ZOOM OUT
+		std::cout << "Zoom out not implementet yet.." << std::endl;
+	}
 }
 
 void OGLWidget::setVolume(Volume* v)

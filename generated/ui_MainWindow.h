@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGroupBox>
@@ -22,7 +23,9 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QProgressBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QWidget>
 #include "OGLWidget.h"
 
@@ -51,6 +54,16 @@ public:
     QGroupBox *renderingBox;
     QRadioButton *MIPRadio;
     QRadioButton *firstHitRadio;
+    QPushButton *upButton;
+    QPushButton *downButton;
+    QPushButton *leftButton;
+    QPushButton *rightButton;
+    QLabel *label_3;
+    QSlider *zoomSlider;
+    QLabel *label_4;
+    QLabel *label_5;
+    QLabel *label_6;
+    QCheckBox *gpuBox;
     QMenuBar *menubar;
     QMenu *menuFile;
 
@@ -89,11 +102,13 @@ public:
         nearestRadio = new QRadioButton(interpolationBox);
         nearestRadio->setObjectName(QStringLiteral("nearestRadio"));
         nearestRadio->setGeometry(QRect(20, 20, 131, 17));
+        nearestRadio->setCheckable(false);
         nearestRadio->setChecked(false);
         trilinearRadio = new QRadioButton(interpolationBox);
         trilinearRadio->setObjectName(QStringLiteral("trilinearRadio"));
         trilinearRadio->setGeometry(QRect(20, 50, 111, 17));
-        trilinearRadio->setChecked(true);
+        trilinearRadio->setCheckable(false);
+        trilinearRadio->setChecked(false);
         transformationBox = new QGroupBox(centralwidget);
         transformationBox->setObjectName(QStringLiteral("transformationBox"));
         transformationBox->setGeometry(QRect(650, 230, 161, 151));
@@ -107,13 +122,16 @@ public:
         xaxis = new QRadioButton(transformationBox);
         xaxis->setObjectName(QStringLiteral("xaxis"));
         xaxis->setGeometry(QRect(10, 80, 82, 17));
+        xaxis->setCheckable(false);
         yaxis = new QRadioButton(transformationBox);
         yaxis->setObjectName(QStringLiteral("yaxis"));
         yaxis->setGeometry(QRect(10, 100, 82, 17));
-        yaxis->setChecked(true);
+        yaxis->setCheckable(false);
+        yaxis->setChecked(false);
         zaxis = new QRadioButton(transformationBox);
         zaxis->setObjectName(QStringLiteral("zaxis"));
         zaxis->setGeometry(QRect(10, 120, 82, 17));
+        zaxis->setCheckable(false);
         label_2 = new QLabel(transformationBox);
         label_2->setObjectName(QStringLiteral("label_2"));
         label_2->setGeometry(QRect(10, 60, 111, 16));
@@ -123,9 +141,45 @@ public:
         MIPRadio = new QRadioButton(renderingBox);
         MIPRadio->setObjectName(QStringLiteral("MIPRadio"));
         MIPRadio->setGeometry(QRect(20, 20, 131, 17));
+        MIPRadio->setCheckable(false);
         firstHitRadio = new QRadioButton(renderingBox);
         firstHitRadio->setObjectName(QStringLiteral("firstHitRadio"));
         firstHitRadio->setGeometry(QRect(20, 50, 111, 17));
+        firstHitRadio->setCheckable(false);
+        upButton = new QPushButton(centralwidget);
+        upButton->setObjectName(QStringLiteral("upButton"));
+        upButton->setGeometry(QRect(704, 387, 54, 23));
+        downButton = new QPushButton(centralwidget);
+        downButton->setObjectName(QStringLiteral("downButton"));
+        downButton->setGeometry(QRect(704, 433, 54, 23));
+        leftButton = new QPushButton(centralwidget);
+        leftButton->setObjectName(QStringLiteral("leftButton"));
+        leftButton->setGeometry(QRect(650, 410, 54, 23));
+        rightButton = new QPushButton(centralwidget);
+        rightButton->setObjectName(QStringLiteral("rightButton"));
+        rightButton->setGeometry(QRect(758, 410, 54, 23));
+        label_3 = new QLabel(centralwidget);
+        label_3->setObjectName(QStringLiteral("label_3"));
+        label_3->setGeometry(QRect(720, 410, 41, 21));
+        zoomSlider = new QSlider(centralwidget);
+        zoomSlider->setObjectName(QStringLiteral("zoomSlider"));
+        zoomSlider->setGeometry(QRect(780, 450, 20, 81));
+        zoomSlider->setMinimum(-50);
+        zoomSlider->setMaximum(50);
+        zoomSlider->setOrientation(Qt::Vertical);
+        label_4 = new QLabel(centralwidget);
+        label_4->setObjectName(QStringLiteral("label_4"));
+        label_4->setGeometry(QRect(750, 480, 47, 13));
+        label_5 = new QLabel(centralwidget);
+        label_5->setObjectName(QStringLiteral("label_5"));
+        label_5->setGeometry(QRect(770, 440, 31, 31));
+        label_6 = new QLabel(centralwidget);
+        label_6->setObjectName(QStringLiteral("label_6"));
+        label_6->setGeometry(QRect(770, 500, 31, 31));
+        gpuBox = new QCheckBox(centralwidget);
+        gpuBox->setObjectName(QStringLiteral("gpuBox"));
+        gpuBox->setGeometry(QRect(650, 480, 70, 17));
+        gpuBox->setCheckable(false);
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QStringLiteral("menubar"));
@@ -162,6 +216,15 @@ public:
         renderingBox->setTitle(QApplication::translate("MainWindow", "Rendering:", 0));
         MIPRadio->setText(QApplication::translate("MainWindow", "Maximum Intensity Proj", 0));
         firstHitRadio->setText(QApplication::translate("MainWindow", "First Hit", 0));
+        upButton->setText(QApplication::translate("MainWindow", "UP", 0));
+        downButton->setText(QApplication::translate("MainWindow", "DOWN", 0));
+        leftButton->setText(QApplication::translate("MainWindow", "LEFT", 0));
+        rightButton->setText(QApplication::translate("MainWindow", "RIGHT", 0));
+        label_3->setText(QApplication::translate("MainWindow", "Move", 0));
+        label_4->setText(QApplication::translate("MainWindow", "Zoom", 0));
+        label_5->setText(QApplication::translate("MainWindow", "+", 0));
+        label_6->setText(QApplication::translate("MainWindow", "-", 0));
+        gpuBox->setText(QApplication::translate("MainWindow", "use GPU", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
     } // retranslateUi
 
