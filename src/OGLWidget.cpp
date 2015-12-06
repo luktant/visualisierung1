@@ -91,7 +91,6 @@ void OGLWidget::initializeShaderAndBuffer(){
 	glGenTextures(1, &texid);
 	glBindTexture(GL_TEXTURE_3D, texid);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
 	//--- Not sure if this works, couldnt access volume Data so far but to use a 3D texture for the voxel data should be the best solution
 	glTexImage3D(GL_TEXTURE_3D,      // 3D texture
 		0,                  // level 0 (for mipmapping)
@@ -100,8 +99,9 @@ void OGLWidget::initializeShaderAndBuffer(){
 		0,                  // border size 0
 		GL_LUMINANCE,       // pixel format of data supplied
 		GL_FLOAT,			// pixel storage type of data supplied
-		volume->volumeData);// pointer to data chunk
-		
+		volume->voxels());// pointer to data chunk
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);

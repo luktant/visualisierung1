@@ -20,6 +20,9 @@
 #include <vector>
 #include "Volume.h"
 #include "Shader.h"
+#include <glm.hpp>
+#include <gtc/type_ptr.hpp>
+#include <gtc/matrix_transform.hpp>
 
 enum RotationAxis{ X, Y, Z };
 enum Interpolation{NEAREST, TRILINEAR};

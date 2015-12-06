@@ -250,10 +250,7 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 	fclose(fp);
 
 	progressBar->setValue(10);
-
-	// this array will be used afterwards for GPU processing
-	volumeData = new float[m_Size];
-
+	
 	// store volume data
 
 	for (int i = 0; i < m_Size; i++)
@@ -263,7 +260,6 @@ bool Volume::loadFromFile(QString filename, QProgressBar* progressBar)
 		// data values, and then 4095.0f is the maximum possible value
 		const float value = std::fmax(0.0f, std::fmin(1.0f, (float(vecData[i]) / 4095.0f)));
 		m_Voxels[i] = Voxel(value);
-		volumeData[i] = value;
 		progressBar->setValue(10 + i);
 	}
 	
