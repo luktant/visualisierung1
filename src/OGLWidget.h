@@ -44,9 +44,9 @@ public:
 	bool ready;
 	bool useGPU = false;
 	Volume* volume;
-
 	std::vector<float> data;
 	float* pixel;
+	glm::mat4 Proj, View, Model, mvp;
 
 	void setVolume(Volume* v);
 	void changeRotationAxis(RotationAxis r);
@@ -63,10 +63,29 @@ protected:
 	void paintGL();
 
 private:
+	// only for fps calculation
+	double lastTime;
+	double lastFrameCalc = 0.f;
+	int frameCount = 0;
+	int fps = 0;
+	float deltaT;
+
+	GLuint viewPlaneBuffer;
+	GLuint viewIndexBuffer;
 	GLuint positionBuffer;
 	GLuint indexBuffer;
 	GLuint VAO;
-	GLuint texid;
+	GLuint VAOview;
+	GLuint FBOentry;
+	GLuint FBOexit;
+	GLuint volumeTexture; //volume data for shader (3D texture)
+	GLuint entryPoint;    //ray entry point (2D texture)
+	GLuint exitPoint;     //ray exit point (2D texture)
+	GLuint db; //depth buffer
 
 	Shader* raycastingShader;
+	Shader* framebufferShader;
+	Shader* viewPlaneShader;
+	void renderToTexture();
+	void countFPS();
 };
