@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow
 		void								 moveDown();
 		void								 moveLeft();
 		void								 moveRight();
-		void								 zoom(int newValue);							 
+		void								 zoom(double value);							 
 		void								 useGPU(bool);
 	
 	private:

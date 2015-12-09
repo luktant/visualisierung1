@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_Ui->leftButton, SIGNAL(pressed()), this, SLOT(moveLeft()));
 	connect(m_Ui->rightButton, SIGNAL(pressed()), this, SLOT(moveRight()));
 	connect(m_Ui->gpuBox, SIGNAL(toggled(bool)), this, SLOT(useGPU(bool)));
-	connect(m_Ui->zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(zoom(int)));
+	connect(m_Ui->zoomFaktor, SIGNAL(valueChanged(double)), this, SLOT(zoom(double)));
 }
 
 MainWindow::~MainWindow()
@@ -159,9 +159,18 @@ void MainWindow::moveLeft(){
 void MainWindow::moveRight(){
 	m_Ui->openGLWidget->move(Direction::RIGHT);
 }
-void MainWindow::zoom(int newValue){
-	m_Ui->openGLWidget->zoom(newValue);	
+void MainWindow::zoom(double value){
+	m_Ui->openGLWidget->zoom(value);
+	std::cout << "ZOOM";
 }
 void MainWindow::useGPU(bool use){
-	m_Ui->openGLWidget->useGPU = use;
+	m_Ui->openGLWidget->changeGPUandCPU(use);
+	if (use){
+		m_Ui->nearestRadio->setCheckable(false);
+		m_Ui->trilinearRadio->setCheckable(false);
+	}
+	else{
+		m_Ui->nearestRadio->setCheckable(true);
+		m_Ui->trilinearRadio->setCheckable(true);
+	}
 }

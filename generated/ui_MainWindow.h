@@ -25,7 +25,6 @@
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
-#include <QtWidgets/QSlider>
 #include <QtWidgets/QWidget>
 #include "OGLWidget.h"
 
@@ -59,11 +58,9 @@ public:
     QPushButton *leftButton;
     QPushButton *rightButton;
     QLabel *label_3;
-    QSlider *zoomSlider;
-    QLabel *label_4;
-    QLabel *label_5;
-    QLabel *label_6;
     QCheckBox *gpuBox;
+    QDoubleSpinBox *zoomFaktor;
+    QLabel *label_4;
     QMenuBar *menubar;
     QMenu *menuFile;
 
@@ -161,25 +158,19 @@ public:
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName(QStringLiteral("label_3"));
         label_3->setGeometry(QRect(720, 410, 41, 21));
-        zoomSlider = new QSlider(centralwidget);
-        zoomSlider->setObjectName(QStringLiteral("zoomSlider"));
-        zoomSlider->setGeometry(QRect(780, 450, 20, 81));
-        zoomSlider->setMinimum(-50);
-        zoomSlider->setMaximum(50);
-        zoomSlider->setOrientation(Qt::Vertical);
-        label_4 = new QLabel(centralwidget);
-        label_4->setObjectName(QStringLiteral("label_4"));
-        label_4->setGeometry(QRect(750, 480, 47, 13));
-        label_5 = new QLabel(centralwidget);
-        label_5->setObjectName(QStringLiteral("label_5"));
-        label_5->setGeometry(QRect(770, 440, 31, 31));
-        label_6 = new QLabel(centralwidget);
-        label_6->setObjectName(QStringLiteral("label_6"));
-        label_6->setGeometry(QRect(770, 500, 31, 31));
         gpuBox = new QCheckBox(centralwidget);
         gpuBox->setObjectName(QStringLiteral("gpuBox"));
-        gpuBox->setGeometry(QRect(650, 480, 70, 17));
+        gpuBox->setGeometry(QRect(650, 510, 70, 17));
         gpuBox->setCheckable(false);
+        zoomFaktor = new QDoubleSpinBox(centralwidget);
+        zoomFaktor->setObjectName(QStringLiteral("zoomFaktor"));
+        zoomFaktor->setGeometry(QRect(650, 470, 62, 22));
+        zoomFaktor->setMinimum(-30);
+        zoomFaktor->setMaximum(30);
+        zoomFaktor->setValue(0);
+        label_4 = new QLabel(centralwidget);
+        label_4->setObjectName(QStringLiteral("label_4"));
+        label_4->setGeometry(QRect(720, 472, 91, 21));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QStringLiteral("menubar"));
@@ -221,10 +212,8 @@ public:
         leftButton->setText(QApplication::translate("MainWindow", "LEFT", 0));
         rightButton->setText(QApplication::translate("MainWindow", "RIGHT", 0));
         label_3->setText(QApplication::translate("MainWindow", "Move", 0));
-        label_4->setText(QApplication::translate("MainWindow", "Zoom", 0));
-        label_5->setText(QApplication::translate("MainWindow", "+", 0));
-        label_6->setText(QApplication::translate("MainWindow", "-", 0));
         gpuBox->setText(QApplication::translate("MainWindow", "use GPU", 0));
+        label_4->setText(QApplication::translate("MainWindow", "Zoom Faktor (+/-)", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0));
     } // retranslateUi
 

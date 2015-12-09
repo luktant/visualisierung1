@@ -38,6 +38,7 @@ public:
 	
 	int width, height;
 	float rotationSpeed;
+	float pi = 3.141592653589793238462643;
 	RotationAxis actualAxis = RotationAxis::Y;
 
 	bool fileLoaded;
@@ -47,6 +48,7 @@ public:
 	std::vector<float> data;
 	float* pixel;
 	glm::mat4 Proj, View, Model, mvp;
+	glm::vec3 cameraPosition = glm::vec3(-4, 2, 2);
 
 	void setVolume(Volume* v);
 	void changeRotationAxis(RotationAxis r);
@@ -54,8 +56,9 @@ public:
 	void changeRendering(Rendering r);
 	void gpuRayCast();
 	void move(Direction d);
-	void zoom(int value);
+	void zoom(double value);
 	void initializeShaderAndBuffer();
+	void changeGPUandCPU(bool use);
 
 protected:
 	void initializeGL();

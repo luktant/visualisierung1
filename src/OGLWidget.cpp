@@ -253,13 +253,14 @@ void OGLWidget::initializeShaderAndBuffer(){
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	Proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10.0f);
+	//Proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 6.0f, -1.0f);
 	//Proj = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.1f, 100.0f);
 	View = glm::lookAt(
-		glm::vec3(-2, -2, -2), //Camera is at
-		glm::vec3(0, 0, 0), //looks at
+		cameraPosition, //Camera is at
+		glm::vec3(0.5, 0.5, 0.5), //looks at
 		glm::vec3(0, 1, 0));  //upvector
-
+	
 	Model = glm::mat4(1.0f);
 	mvp = (Proj * View * Model);
 }
@@ -305,6 +306,9 @@ void OGLWidget::gpuRayCast()
 	loc = glGetUniformLocation(raycastingShader->programHandle, "depth");
 	glUniform1i(loc, volume->depth());
 
+	loc = glGetUniformLocation(raycastingShader->programHandle, "rendering");
+	glUniform1i(loc, volume->rendering);
+
 	glBindVertexArray(VAOview);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	
@@ -315,7 +319,10 @@ void OGLWidget::gpuRayCast()
 void OGLWidget::renderToTexture()
 {
 	//First update the ModelViewProjection Matrix in case of rotations etc.
-	Model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0, 1, 0));
+	Model = glm::translate(Model, glm::vec3(0.5f, 0.5f, 0.5f));
+	Model = glm::rotate(Model, (pi/8*rotationSpeed)/(float)glfwGetTime(), (actualAxis == RotationAxis::X ? glm::vec3(1, 0, 0) : (actualAxis == RotationAxis::Y ? glm::vec3(0, 1, 0) : glm::vec3(0, 0, 1))));
+	Model = glm::translate(Model, glm::vec3(-0.5f, -0.5f, -0.5f));
+	
 	mvp = (Proj * View * Model);
 
 	//Render in texture ENTRY POINT
@@ -368,29 +375,27 @@ void OGLWidget::move(Direction d){
 	switch (d){
 	case Direction::UP:
 		volume->translate(0);
+		View = glm::translate(View, glm::vec3(0, .1f, 0));
 		break;
 	case Direction::DOWN:
 		volume->translate(1);
+		View = glm::translate(View, glm::vec3(0, -.1f, 0));
 		break;
 	case Direction::LEFT:
 		volume->translate(2);
+		View = glm::translate(View, glm::vec3(-.1f, 0, -.25f));
 		break;
 	case Direction::RIGHT:
 		volume->translate(3);
+		View = glm::translate(View, glm::vec3(.1f, 0, .25f));
 		break;
-	}
+	}	
 }
 
-void OGLWidget::zoom(int value)
+void OGLWidget::zoom(double value)
 {
-	if (value>0){
-		//ZOOM IN
-		std::cout << "Zoom in not implementet yet.." << std::endl;
-	}
-	else if (value<0){
-		//ZOOM OUT
-		std::cout << "Zoom out not implementet yet.." << std::endl;
-	}
+	std::cout << value << std::endl;
+	Proj = glm::perspective(glm::radians(45.0f) - glm::radians((float)value), (float)width / (float)height, 0.1f, 10.0f);	
 }
 
 void OGLWidget::setVolume(Volume* v)
@@ -400,6 +405,7 @@ void OGLWidget::setVolume(Volume* v)
 
 void OGLWidget::changeRotationAxis(RotationAxis r)
 {
+	actualAxis = r;
 	if (r == RotationAxis::X) volume->rAxis = Volume::Axis::X;
 	else if (r == RotationAxis::Y) volume->rAxis = Volume::Axis::Y;
 	else volume->rAxis = Volume::Axis::Z;
@@ -429,4 +435,8 @@ void OGLWidget::countFPS(){
 	}
 	deltaT = time - lastTime;
 	lastTime = time;	
+}
+
+void OGLWidget::changeGPUandCPU(bool use){
+	useGPU = use;
 }

@@ -20,7 +20,7 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
     QByteArrayData data[16];
-    char stringdata0[168];
+    char stringdata0[165];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -43,15 +43,15 @@ QT_MOC_LITERAL(10, 119, 8), // "moveDown"
 QT_MOC_LITERAL(11, 128, 8), // "moveLeft"
 QT_MOC_LITERAL(12, 137, 9), // "moveRight"
 QT_MOC_LITERAL(13, 147, 4), // "zoom"
-QT_MOC_LITERAL(14, 152, 8), // "newValue"
-QT_MOC_LITERAL(15, 161, 6) // "useGPU"
+QT_MOC_LITERAL(14, 152, 5), // "value"
+QT_MOC_LITERAL(15, 158, 6) // "useGPU"
 
     },
     "MainWindow\0openFileAction\0\0closeAction\0"
     "interpolationChanged\0renderingChanged\0"
     "rotationChanged\0setRotationSpeed\0s\0"
     "moveUp\0moveDown\0moveLeft\0moveRight\0"
-    "zoom\0newValue\0useGPU"
+    "zoom\0value\0useGPU"
 };
 #undef QT_MOC_LITERAL
 
@@ -93,7 +93,7 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,   14,
+    QMetaType::Void, QMetaType::Double,   14,
     QMetaType::Void, QMetaType::Bool,    2,
 
        0        // eod
@@ -115,7 +115,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 7: _t->moveDown(); break;
         case 8: _t->moveLeft(); break;
         case 9: _t->moveRight(); break;
-        case 10: _t->zoom((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 10: _t->zoom((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 11: _t->useGPU((*reinterpret_cast< bool(*)>(_a[1]))); break;
         default: ;
         }
