@@ -179,7 +179,7 @@ std::vector<float> Volume::processVolume(QString filename, QProgressBar* progres
 
 	std::vector<float> pixel;
 	pixel.resize(1);
-
+	this->samplingStepSize = 1.0;
 	if (success){
 		if (start){
 			initPlane();
@@ -320,7 +320,7 @@ std::vector<float> Volume::rayCast(){
 				uint index;
 
 				//Maximum-Intensity-Projektion
-				glm::vec3 step = glm::vec3(direction.x / length(direction), direction.y / length(direction), direction.z / length(direction));
+				glm::vec3 step = glm::vec3(direction.x / length(direction), direction.y / length(direction), direction.z / length(direction))*glm::vec3(samplingStepSize, samplingStepSize, samplingStepSize);
 
 				for (step; front.z < back.z; front += step)
 				{

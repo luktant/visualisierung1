@@ -35,7 +35,7 @@ void OGLWidget::initializeGL()
 	if (!glfwInit())
 	{
 		std::cout << "Failed to init glfw, using only CPU" << std::endl;
-		useGPU = false;
+		useGPU = true;
 	}
 	//Init GLEW
 	glewExperimental = GL_TRUE;
@@ -53,13 +53,12 @@ void OGLWidget::paintGL()
 		countFPS();
 		if (useGPU){			
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
-			//std::cout << "GPU" << std::endl;
 			gpuRayCast();
 			
 		}
 		else{			
-			//std::cout << "----------------CPU" << std::endl;
 			volume->rotate(rotationSpeed);
+			volume->samplingStepSize = samplingStepSize;
 			data = volume->rayCast();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			float* pixel = &data[0];
@@ -296,7 +295,7 @@ void OGLWidget::gpuRayCast()
 	glUniform1i(tex_location, 2);
 	glDisable(GL_TEXTURE_3D);
 
-	//Width and Height as uniforms
+	//width, height, depth, renderingtype (enum) and stepsize as uniforms
 	auto loc = glGetUniformLocation(raycastingShader->programHandle, "width");
 	glUniform1i(loc, volume->width());
 
@@ -308,6 +307,9 @@ void OGLWidget::gpuRayCast()
 
 	loc = glGetUniformLocation(raycastingShader->programHandle, "rendering");
 	glUniform1i(loc, volume->rendering);
+	
+	loc = glGetUniformLocation(raycastingShader->programHandle, "samplingStepSize");
+	glUniform1f(loc, (float)samplingStepSize);
 
 	glBindVertexArray(VAOview);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_Ui->rightButton, SIGNAL(pressed()), this, SLOT(moveRight()));
 	connect(m_Ui->gpuBox, SIGNAL(toggled(bool)), this, SLOT(useGPU(bool)));
 	connect(m_Ui->zoomFaktor, SIGNAL(valueChanged(double)), this, SLOT(zoom(double)));
+	connect(m_Ui->sampling, SIGNAL(valueChanged(double)), this, SLOT(changeSamplingStepsize(double)));
 }
 
 MainWindow::~MainWindow()
@@ -121,6 +122,7 @@ void MainWindow::openFileAction()
 			m_Ui->rotationSpeed->setDisabled(false);
 			m_Ui->openGLWidget->fileLoaded=true;
 			m_Ui->gpuBox->setCheckable(true);
+			m_Ui->gpuBox->setChecked(true);
 			m_Ui->openGLWidget->initializeShaderAndBuffer();
 		}
 	}
@@ -173,4 +175,7 @@ void MainWindow::useGPU(bool use){
 		m_Ui->nearestRadio->setCheckable(true);
 		m_Ui->trilinearRadio->setCheckable(true);
 	}
+}
+void MainWindow::changeSamplingStepsize(double value){
+	m_Ui->openGLWidget->samplingStepSize = value;
 }

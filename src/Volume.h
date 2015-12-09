@@ -110,6 +110,7 @@ class Volume
 		const int				depth() const;
 
 		int						m_Size;
+		double					samplingStepSize;
 		const int				size() const;
 		enum					Axis { X, Y, Z };
 		bool					trilinear;

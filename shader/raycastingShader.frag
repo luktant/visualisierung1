@@ -11,6 +11,7 @@ uniform int rendering;
 uniform int width;
 uniform int height;
 uniform int depth;
+uniform float samplingStepSize;
 
 uniform sampler2D entryPoint;
 uniform sampler2D exitPoint;
@@ -36,7 +37,7 @@ void main(){
 		}
 		
 		vec3 direction = (end-start);
-		vec3 step = normalize(direction);
+		vec3 step = normalize(direction)*samplingStepSize;
 		
 		float maximum = 0;
 		float val;

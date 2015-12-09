@@ -38,6 +38,7 @@ public:
 	
 	int width, height;
 	float rotationSpeed;
+	double samplingStepSize = 1.0;
 	float pi = 3.141592653589793238462643;
 	RotationAxis actualAxis = RotationAxis::Y;
 

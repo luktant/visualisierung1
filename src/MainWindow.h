@@ -41,7 +41,7 @@ class MainWindow : public QMainWindow
 		void								 moveRight();
 		void								 zoom(double value);							 
 		void								 useGPU(bool);
-	
+		void								 changeSamplingStepsize(double);
 	private:
 
 		// USER INTERFACE ELEMENTS
