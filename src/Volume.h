@@ -114,7 +114,8 @@ class Volume
 		const int				size() const;
 		enum					Axis { X, Y, Z };
 		bool					trilinear;
-		enum					Rendering {MIP, FIRSTHIT};
+		bool					gradient = false;
+		enum					Rendering { MIP, FIRSTHIT };
 
 		Axis					rAxis;
 		Rendering				rendering;
@@ -127,6 +128,7 @@ class Volume
 		void					initPlane();
 		void					rotate(float theta);
 		void					translate(int direction);
+		void					zoom(int z);
 	private:
 
 		std::vector<Voxel>		m_Voxels;

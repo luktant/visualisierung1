@@ -60,6 +60,7 @@ public:
     QGroupBox *groupBox_3;
     QLabel *label_4;
     QDoubleSpinBox *zoomFaktor;
+    QCheckBox *gradientCheckBox;
     QGroupBox *renderingBox;
     QRadioButton *MIPRadio;
     QRadioButton *firstHitRadio;
@@ -171,6 +172,10 @@ public:
         zoomFaktor->setMinimum(-30);
         zoomFaktor->setMaximum(30);
         zoomFaktor->setValue(0);
+        gradientCheckBox = new QCheckBox(transformationBox);
+        gradientCheckBox->setObjectName(QStringLiteral("gradientCheckBox"));
+        gradientCheckBox->setGeometry(QRect(210, 110, 111, 17));
+		gradientCheckBox->setCheckable(false);
         renderingBox = new QGroupBox(centralwidget);
         renderingBox->setObjectName(QStringLiteral("renderingBox"));
         renderingBox->setGeometry(QRect(820, 200, 161, 81));
@@ -241,6 +246,7 @@ public:
         upButton->setText(QApplication::translate("MainWindow", "UP", 0));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Zoom", 0));
         label_4->setText(QApplication::translate("MainWindow", "Zoom Faktor (+/-):", 0));
+        gradientCheckBox->setText(QApplication::translate("MainWindow", "Gradient (Alpha)", 0));
         renderingBox->setTitle(QApplication::translate("MainWindow", "Rendering:", 0));
         MIPRadio->setText(QApplication::translate("MainWindow", "Maximum Intensity Proj", 0));
         firstHitRadio->setText(QApplication::translate("MainWindow", "First Hit", 0));

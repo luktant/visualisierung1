@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_Ui->trilinearRadio, SIGNAL(toggled(bool)), this, SLOT(interpolationChanged()));
 	connect(m_Ui->MIPRadio, SIGNAL(toggled(bool)), this, SLOT(renderingChanged()));
 	connect(m_Ui->firstHitRadio, SIGNAL(toggled(bool)), this, SLOT(renderingChanged()));
+	connect(m_Ui->gradientCheckBox, SIGNAL(stateChanged(int)), this, SLOT(renderingChanged()));
 	connect(m_Ui->xaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
 	connect(m_Ui->yaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
 	connect(m_Ui->zaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
@@ -124,6 +125,7 @@ void MainWindow::openFileAction()
 			m_Ui->gpuBox->setCheckable(true);
 			m_Ui->gpuBox->setChecked(true);
 			m_Ui->openGLWidget->initializeShaderAndBuffer();
+			m_Ui->gradientCheckBox->setCheckable(true);
 		}
 	}
 }
@@ -138,8 +140,10 @@ void MainWindow::interpolationChanged(){
 	else m_Ui->openGLWidget->changeInterpolation(Interpolation::TRILINEAR);
 }
 void MainWindow::renderingChanged(){
-	if (m_Ui->MIPRadio->isChecked()) m_Ui->openGLWidget->changeRendering(Rendering::MIP);
+	if (m_Ui->gradientCheckBox->isChecked()) m_Ui->openGLWidget->changeRendering(Rendering::GRADIENT);
+	else if (m_Ui->MIPRadio->isChecked()) m_Ui->openGLWidget->changeRendering(Rendering::MIP);
 	else m_Ui->openGLWidget->changeRendering(Rendering::FIRSTHIT);
+	
 }
 void MainWindow::rotationChanged(){
 	if (m_Ui->xaxis->isChecked()) m_Ui->openGLWidget->changeRotationAxis(RotationAxis::X);
@@ -163,7 +167,6 @@ void MainWindow::moveRight(){
 }
 void MainWindow::zoom(double value){
 	m_Ui->openGLWidget->zoom(value);
-	std::cout << "ZOOM";
 }
 void MainWindow::useGPU(bool use){
 	m_Ui->openGLWidget->changeGPUandCPU(use);

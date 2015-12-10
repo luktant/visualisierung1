@@ -361,6 +361,19 @@
       </property>
      </widget>
     </widget>
+    <widget class="QCheckBox" name="gradientCheckBox">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>110</y>
+       <width>111</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Gradient (Alpha)</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="renderingBox">
     <property name="geometry">

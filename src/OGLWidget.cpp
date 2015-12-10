@@ -272,11 +272,12 @@ void OGLWidget::gpuRayCast()
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	//second pass, render view plane, raycasting is performed in the raycasting shader
+	//second pass, raycasting is performed in the raycasting shader
 
 	glUseProgram(raycastingShader->programHandle);
 
-	//Set the 2D textures (entry- and exitpoint of ray)
+	//Uniforms
+	//--Set the 2D textures (entry- and exitpoint of ray)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, entryPoint);
 	auto tex_location = glGetUniformLocation(raycastingShader->programHandle, "entryPoint");
@@ -287,7 +288,7 @@ void OGLWidget::gpuRayCast()
 	tex_location = glGetUniformLocation(raycastingShader->programHandle, "exitPoint");
 	glUniform1i(tex_location, 1);
 
-	//Set the 3D texture (volume Data);
+	//--Set the 3D texture (volume Data);
 	glEnable(GL_TEXTURE_3D),
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_3D, volumeTexture);
@@ -295,7 +296,7 @@ void OGLWidget::gpuRayCast()
 	glUniform1i(tex_location, 2);
 	glDisable(GL_TEXTURE_3D);
 
-	//width, height, depth, renderingtype (enum) and stepsize as uniforms
+	//--width, height, depth, renderingtype (enum) and stepsize as uniforms
 	auto loc = glGetUniformLocation(raycastingShader->programHandle, "width");
 	glUniform1i(loc, volume->width());
 
@@ -306,10 +307,17 @@ void OGLWidget::gpuRayCast()
 	glUniform1i(loc, volume->depth());
 
 	loc = glGetUniformLocation(raycastingShader->programHandle, "rendering");
-	glUniform1i(loc, volume->rendering);
+	glUniform1i(loc, (volume->gradient?2:volume->rendering));
 	
 	loc = glGetUniformLocation(raycastingShader->programHandle, "samplingStepSize");
 	glUniform1f(loc, (float)samplingStepSize);
+
+	//--filter Kernels for gradient
+	loc = glGetUniformLocation(raycastingShader->programHandle, "filterKernelX");
+	glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(filterKernelX));
+
+	loc = glGetUniformLocation(raycastingShader->programHandle, "filterKernelY");
+	glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(filterKernelY));
 
 	glBindVertexArray(VAOview);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -396,7 +404,7 @@ void OGLWidget::move(Direction d){
 
 void OGLWidget::zoom(double value)
 {
-	std::cout << value << std::endl;
+	volume->zoom(value);
 	Proj = glm::perspective(glm::radians(45.0f) - glm::radians((float)value), (float)width / (float)height, 0.1f, 10.0f);	
 }
 
@@ -421,8 +429,15 @@ void OGLWidget::changeInterpolation(Interpolation i)
 
 void OGLWidget::changeRendering(Rendering r)
 {
-	if (r == Rendering::MIP) volume->rendering = Volume::Rendering::MIP;
-	else volume->rendering = Volume::Rendering::FIRSTHIT;
+	if (r == Rendering::MIP){
+		volume->rendering = Volume::Rendering::MIP;
+		if(volume->gradient) volume->gradient = false;
+	}
+	else if (r == Rendering::FIRSTHIT){
+		volume->rendering = Volume::Rendering::FIRSTHIT;
+		if (volume->gradient) volume->gradient = false;
+	}
+	else volume->gradient = !volume->gradient;
 }
 
 void OGLWidget::countFPS(){	

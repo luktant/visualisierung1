@@ -26,7 +26,7 @@
 
 enum RotationAxis{ X, Y, Z };
 enum Interpolation{NEAREST, TRILINEAR};
-enum Rendering{ MIP, FIRSTHIT };
+enum Rendering{ MIP, FIRSTHIT, GRADIENT };
 enum Direction{UP, DOWN, LEFT, RIGHT};
 
 class OGLWidget : public QGLWidget
@@ -44,12 +44,15 @@ public:
 
 	bool fileLoaded;
 	bool ready;
+	bool gradient = true;
 	bool useGPU = false;
 	Volume* volume;
 	std::vector<float> data;
 	float* pixel;
 	glm::mat4 Proj, View, Model, mvp;
 	glm::vec3 cameraPosition = glm::vec3(-4, 2, 2);
+	glm::mat3 filterKernelX = glm::mat3(1, 0, -1, 2, 0, -2, 1, 0, -1);
+	glm::mat3 filterKernelY = glm::mat3(1, 2, 1, 0, 0, 0, -1, -2, -1);
 
 	void setVolume(Volume* v);
 	void changeRotationAxis(RotationAxis r);

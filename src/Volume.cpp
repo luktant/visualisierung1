@@ -349,6 +349,17 @@ std::vector<float> Volume::rayCast(){
 			out[i*PIXEL_X + j] = intensity;
 		}
 	}
+	if (gradient){
+		std::vector<float> out2;
+		long n = PIXEL_X * PIXEL_Y;
+		out2.resize(n);		
+		out2[0] = 0;
+		out2[n - 1] = 0;
+		for (int i = 1; i<n-1; i++){			
+			out2[i] = out[i + 1] - out[i - 1];
+		}		
+		out = out2;
+	}
 	return out;
 }
 
@@ -403,6 +414,10 @@ void Volume::translate(int direction)
 		else p.v.x -= 10;
 		break;
 	}	
+}
+
+void Volume::zoom(int z){
+	std::cout << "ZOOM is only on GPU implemented" << std::endl;
 }
 
 float Volume::interpolate(float x_start, float y_start, float z_start){
