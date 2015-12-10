@@ -35,7 +35,7 @@ void OGLWidget::initializeGL()
 	if (!glfwInit())
 	{
 		std::cout << "Failed to init glfw, using only CPU" << std::endl;
-		useGPU = true;
+		useGPU = false;
 	}
 	//Init GLEW
 	glewExperimental = GL_TRUE;
@@ -52,7 +52,7 @@ void OGLWidget::paintGL()
 	if (fileLoaded){
 		countFPS();
 		if (useGPU){			
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			gpuRayCast();
 			
 		}
@@ -70,13 +70,16 @@ void OGLWidget::paintGL()
 void OGLWidget::initializeShaderAndBuffer(){
 	framebufferShader = new Shader("shader/FBOshader.vert", "shader/FBOshader.frag");
 	raycastingShader = new Shader("shader/raycastingShader.vert", "shader/raycastingShader.frag");
+
 	float viewPlane[12] = {
 		-1, -1, 0,
 		-1, 1, 0,
 		1, 1, 0,
 		1, -1, 0 };
 	unsigned int viewIndices[6] = { 0, 1, 2, 0, 2, 3 };
-
+	dhratio = (float)volume->depth() / volume->width();
+	if (dhratio > 0.5) dhratio = 1;//cheating, ausbessern für bessere ergebnisse, bouding box sollte mit den volumenmaßen intialisiert werden, rotation usw. mit den xdiff ydiff und zdiffs
+	
 	float boundingBox[72] = {
 		//Back
 		0, 0, 0,
@@ -85,34 +88,34 @@ void OGLWidget::initializeShaderAndBuffer(){
 		1, 0, 0,
 
 		//Front
-		0, 0, 1,
-		1, 0, 1,
-		1, 1, 1,
-		0, 1, 1,
+		0, 0, dhratio,
+		1, 0, dhratio,
+		1, 1, dhratio,
+		0, 1, dhratio,
 
 		//Top
-		1, 1, 1,
+		1, 1, dhratio,
 		1, 1, 0,
 		0, 1, 0,
-		0, 1, 1,
+		0, 1, dhratio,
 
 		//Bottom
-		1, 0, 1,
-		0, 0, 1,
+		1, 0, dhratio,
+		0, 0, dhratio,
 		0, 0, 0,
 		1, 0, 0,
 
 		//Right
-		1, 1, 1,
-		1, 0, 1,
+		1, 1, dhratio,
+		1, 0, dhratio,
 		1, 0, 0,
 		1, 1, 0,
 
 		// Left
-		0, 1, 1,
+		0, 1, dhratio,
 		0, 1, 0,
 		0, 0, 0,
-		0, 0, 1 };
+		0, 0, dhratio };
 
 
 	const unsigned int indices[36] = {
@@ -252,15 +255,16 @@ void OGLWidget::initializeShaderAndBuffer(){
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10.0f);
+	Proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	//Proj = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 6.0f, -1.0f);
-	//Proj = glm::ortho(0.0f, (float)width, (float)height, 0.0f, 0.1f, 100.0f);
 	View = glm::lookAt(
 		cameraPosition, //Camera is at
 		glm::vec3(0.5, 0.5, 0.5), //looks at
 		glm::vec3(0, 1, 0));  //upvector
-	
-	Model = glm::mat4(1.0f);
+	Model = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, ((float)volume->depth()/volume->width())/2.f));
+	Model = glm::rotate(Model, pi / 2, glm::vec3(1, 0, 0));
+	Model = glm::rotate(Model, pi , glm::vec3(0, 0, 1));
+	Model = glm::translate(Model, glm::vec3(-0.5f, -0.5f, -0.5f));
 	mvp = (Proj * View * Model);
 }
 
@@ -296,7 +300,7 @@ void OGLWidget::gpuRayCast()
 	glUniform1i(tex_location, 2);
 	glDisable(GL_TEXTURE_3D);
 
-	//--width, height, depth, renderingtype (enum) and stepsize as uniforms
+	//--width, height, depth, renderingtype (enum) and stepsize and firsthitThreshold as uniforms
 	auto loc = glGetUniformLocation(raycastingShader->programHandle, "width");
 	glUniform1i(loc, volume->width());
 
@@ -307,11 +311,17 @@ void OGLWidget::gpuRayCast()
 	glUniform1i(loc, volume->depth());
 
 	loc = glGetUniformLocation(raycastingShader->programHandle, "rendering");
-	glUniform1i(loc, (volume->gradient?2:volume->rendering));
+	glUniform1i(loc, (volume->gradient?3:volume->rendering));
 	
 	loc = glGetUniformLocation(raycastingShader->programHandle, "samplingStepSize");
 	glUniform1f(loc, (float)samplingStepSize);
 
+	loc = glGetUniformLocation(raycastingShader->programHandle, "firstHitThreshold");
+	glUniform1f(loc, (float)volume->firstHitThreshold);
+
+	loc = glGetUniformLocation(raycastingShader->programHandle, "rotationAxis");
+	glUniform1i(loc, volume->rAxis);
+		
 	//--filter Kernels for gradient
 	loc = glGetUniformLocation(raycastingShader->programHandle, "filterKernelX");
 	glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(filterKernelX));
@@ -404,8 +414,8 @@ void OGLWidget::move(Direction d){
 
 void OGLWidget::zoom(double value)
 {
-	volume->zoom(value);
-	Proj = glm::perspective(glm::radians(45.0f) - glm::radians((float)value), (float)width / (float)height, 0.1f, 10.0f);	
+	if(!useGPU)volume->zoom(value);
+	else Proj = glm::perspective(glm::radians(45.0f) - glm::radians((float)value), (float)width / (float)height, 0.1f, 10.0f);	
 }
 
 void OGLWidget::setVolume(Volume* v)
@@ -437,6 +447,10 @@ void OGLWidget::changeRendering(Rendering r)
 		volume->rendering = Volume::Rendering::FIRSTHIT;
 		if (volume->gradient) volume->gradient = false;
 	}
+	else if (r == Rendering::ALPHACOMP){
+		volume->rendering = Volume::Rendering::ALPHACOMP;
+		if (volume->gradient) volume->gradient = false;
+	}
 	else volume->gradient = !volume->gradient;
 }
 
@@ -456,4 +470,8 @@ void OGLWidget::countFPS(){
 
 void OGLWidget::changeGPUandCPU(bool use){
 	useGPU = use;
+}
+
+void OGLWidget::firstHitThres(double value){
+	volume->firstHitThreshold = value;
 }

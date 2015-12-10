@@ -115,7 +115,8 @@ class Volume
 		enum					Axis { X, Y, Z };
 		bool					trilinear;
 		bool					gradient = false;
-		enum					Rendering { MIP, FIRSTHIT };
+		enum					Rendering { MIP, FIRSTHIT, ALPHACOMP };
+		double					firstHitThreshold = 0;
 
 		Axis					rAxis;
 		Rendering				rendering;

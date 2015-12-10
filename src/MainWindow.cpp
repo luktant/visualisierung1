@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_Ui->trilinearRadio, SIGNAL(toggled(bool)), this, SLOT(interpolationChanged()));
 	connect(m_Ui->MIPRadio, SIGNAL(toggled(bool)), this, SLOT(renderingChanged()));
 	connect(m_Ui->firstHitRadio, SIGNAL(toggled(bool)), this, SLOT(renderingChanged()));
+	connect(m_Ui->alphaRadio, SIGNAL(toggled(bool)), this, SLOT(renderingChanged()));
 	connect(m_Ui->gradientCheckBox, SIGNAL(stateChanged(int)), this, SLOT(renderingChanged()));
 	connect(m_Ui->xaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
 	connect(m_Ui->yaxis, SIGNAL(toggled(bool)), this, SLOT(rotationChanged()));
@@ -24,7 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_Ui->rightButton, SIGNAL(pressed()), this, SLOT(moveRight()));
 	connect(m_Ui->gpuBox, SIGNAL(toggled(bool)), this, SLOT(useGPU(bool)));
 	connect(m_Ui->zoomFaktor, SIGNAL(valueChanged(double)), this, SLOT(zoom(double)));
-	connect(m_Ui->sampling, SIGNAL(valueChanged(double)), this, SLOT(changeSamplingStepsize(double)));
+	connect(m_Ui->sampling, SIGNAL(valueChanged(double)), this, SLOT(changeSamplingStepsize(double))); 
+	connect(m_Ui->firstHitThresBox, SIGNAL(valueChanged(double)), this, SLOT(setFirstHitThreshold(double)));	
 }
 
 MainWindow::~MainWindow()
@@ -116,6 +118,7 @@ void MainWindow::openFileAction()
 			m_Ui->MIPRadio->setCheckable(true);
 			m_Ui->MIPRadio->setChecked(true);
 			m_Ui->firstHitRadio->setCheckable(true);
+			m_Ui->alphaRadio->setCheckable(true);
 			m_Ui->xaxis->setCheckable(true);
 			m_Ui->yaxis->setCheckable(true);
 			m_Ui->yaxis->setChecked(true);
@@ -123,9 +126,10 @@ void MainWindow::openFileAction()
 			m_Ui->rotationSpeed->setDisabled(false);
 			m_Ui->openGLWidget->fileLoaded=true;
 			m_Ui->gpuBox->setCheckable(true);
-			m_Ui->gpuBox->setChecked(true);
-			m_Ui->openGLWidget->initializeShaderAndBuffer();
+			m_Ui->gpuBox->setChecked(true);			
 			m_Ui->gradientCheckBox->setCheckable(true);
+			m_Ui->openGLWidget->initializeShaderAndBuffer();
+			useGPU(true);
 		}
 	}
 }
@@ -142,8 +146,8 @@ void MainWindow::interpolationChanged(){
 void MainWindow::renderingChanged(){
 	if (m_Ui->gradientCheckBox->isChecked()) m_Ui->openGLWidget->changeRendering(Rendering::GRADIENT);
 	else if (m_Ui->MIPRadio->isChecked()) m_Ui->openGLWidget->changeRendering(Rendering::MIP);
-	else m_Ui->openGLWidget->changeRendering(Rendering::FIRSTHIT);
-	
+	else if (m_Ui->firstHitRadio->isChecked()) m_Ui->openGLWidget->changeRendering(Rendering::FIRSTHIT);
+	else m_Ui->openGLWidget->changeRendering(Rendering::ALPHACOMP);
 }
 void MainWindow::rotationChanged(){
 	if (m_Ui->xaxis->isChecked()) m_Ui->openGLWidget->changeRotationAxis(RotationAxis::X);
@@ -173,12 +177,19 @@ void MainWindow::useGPU(bool use){
 	if (use){
 		m_Ui->nearestRadio->setCheckable(false);
 		m_Ui->trilinearRadio->setCheckable(false);
+		m_Ui->alphaRadio->setCheckable(true);
+		m_Ui->gradientCheckBox->setCheckable(true);
 	}
 	else{
 		m_Ui->nearestRadio->setCheckable(true);
 		m_Ui->trilinearRadio->setCheckable(true);
+		m_Ui->alphaRadio->setCheckable(false);
+		m_Ui->gradientCheckBox->setCheckable(false);
 	}
 }
 void MainWindow::changeSamplingStepsize(double value){
 	m_Ui->openGLWidget->samplingStepSize = value;
+}
+void MainWindow::setFirstHitThreshold(double value){
+	m_Ui->openGLWidget->firstHitThres(value);
 }

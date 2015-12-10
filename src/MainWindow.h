@@ -42,6 +42,7 @@ class MainWindow : public QMainWindow
 		void								 zoom(double value);							 
 		void								 useGPU(bool);
 		void								 changeSamplingStepsize(double);
+		void								 setFirstHitThreshold(double);
 	private:
 
 		// USER INTERFACE ELEMENTS

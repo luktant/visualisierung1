@@ -76,9 +76,9 @@
     <property name="geometry">
      <rect>
       <x>650</x>
-      <y>200</y>
+      <y>160</y>
       <width>161</width>
-      <height>81</height>
+      <height>91</height>
      </rect>
     </property>
     <property name="title">
@@ -233,8 +233,14 @@
         <height>22</height>
        </rect>
       </property>
+      <property name="minimum">
+       <double>-50.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>50.000000000000000</double>
+      </property>
       <property name="singleStep">
-       <double>0.100000000000000</double>
+       <double>0.010000000000000</double>
       </property>
      </widget>
     </widget>
@@ -378,10 +384,10 @@
    <widget class="QGroupBox" name="renderingBox">
     <property name="geometry">
      <rect>
-      <x>820</x>
-      <y>200</y>
+      <x>810</x>
+      <y>160</y>
       <width>161</width>
-      <height>81</height>
+      <height>121</height>
      </rect>
     </property>
     <property name="title">
@@ -407,8 +413,8 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>50</y>
-       <width>111</width>
+       <y>80</y>
+       <width>61</width>
        <height>17</height>
       </rect>
      </property>
@@ -419,12 +425,57 @@
       <bool>false</bool>
      </property>
     </widget>
+    <widget class="QDoubleSpinBox" name="firstHitThresBox">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>80</y>
+       <width>61</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>2</number>
+     </property>
+     <property name="singleStep">
+      <double>0.010000000000000</double>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>100</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Threshold</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="alphaRadio">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>50</y>
+       <width>121</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Alpha Compositing</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QCheckBox" name="gpuBox">
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>70</y>
+      <y>130</y>
       <width>231</width>
       <height>17</height>
      </rect>
@@ -483,6 +534,45 @@
       <double>1.000000000000000</double>
      </property>
     </widget>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>60</y>
+      <width>291</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Some program features are only available, when the GPU </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>80</y>
+      <width>301</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>is enabled (like Alpha-Compositing, Translation and Zoom). On</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>100</y>
+      <width>291</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>the GPU everything should work (as far as tested).</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

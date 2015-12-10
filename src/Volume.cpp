@@ -322,6 +322,8 @@ std::vector<float> Volume::rayCast(){
 				//Maximum-Intensity-Projektion
 				glm::vec3 step = glm::vec3(direction.x / length(direction), direction.y / length(direction), direction.z / length(direction))*glm::vec3(samplingStepSize, samplingStepSize, samplingStepSize);
 
+				glm::vec4 alphaCompRGBA_a = { 0, 0, 0, 0 };
+
 				for (step; front.z < back.z; front += step)
 				{
 					//nearest neighbour
@@ -336,12 +338,12 @@ std::vector<float> Volume::rayCast(){
 
 					if (rendering == MIP){
 						//check if new actual value is higher
-						if (value > intensity) intensity = value;
+						if (value >= intensity) intensity = value;
 					}
 					else if (rendering == FIRSTHIT){
-						if (value > 0){ 
+						if (value > firstHitThreshold){
 							intensity = value;
-							break; //Break on first hit
+							break; //Break on first hit larger than the treshold
 						}
 					}
 				}

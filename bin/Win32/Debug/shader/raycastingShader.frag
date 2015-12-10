@@ -119,11 +119,9 @@ void main(){
 			end = start;
 			start = temp;
 		}
-		float d = depth*1.f;
-		float w = width*1.f;
 		vec3 direction = (end-start);
-		vec3 step = normalize(direction)*(samplingStepSize);
-		
+		vec3 step = normalize(direction)*samplingStepSize;
+
 		float maximum = 0;
 		float val;		
 		bool firstHit = false;

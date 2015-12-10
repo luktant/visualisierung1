@@ -1,5 +1,5 @@
 #pragma once
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <QtOpenGL/QGLWidget>
 #include <QWidget>
@@ -26,7 +26,7 @@
 
 enum RotationAxis{ X, Y, Z };
 enum Interpolation{NEAREST, TRILINEAR};
-enum Rendering{ MIP, FIRSTHIT, GRADIENT };
+enum Rendering{ MIP, FIRSTHIT, GRADIENT, ALPHACOMP };
 enum Direction{UP, DOWN, LEFT, RIGHT};
 
 class OGLWidget : public QGLWidget
@@ -40,6 +40,7 @@ public:
 	float rotationSpeed;
 	double samplingStepSize = 1.0;
 	float pi = 3.141592653589793238462643;
+	float dhratio;
 	RotationAxis actualAxis = RotationAxis::Y;
 
 	bool fileLoaded;
@@ -63,6 +64,7 @@ public:
 	void zoom(double value);
 	void initializeShaderAndBuffer();
 	void changeGPUandCPU(bool use);
+	void firstHitThres(double value);
 
 protected:
 	void initializeGL();
@@ -76,6 +78,7 @@ private:
 	int frameCount = 0;
 	int fps = 0;
 	float deltaT;
+	float zDiff;
 
 	GLuint viewPlaneBuffer;
 	GLuint viewIndexBuffer;
