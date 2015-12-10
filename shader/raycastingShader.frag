@@ -21,7 +21,6 @@ uniform sampler2D entryPoint;
 uniform sampler2D exitPoint;
 uniform sampler3D volumeTexture;
 
-
 void main(){
 	
 	vec3 textureSize = vec3(width, height, depth);
